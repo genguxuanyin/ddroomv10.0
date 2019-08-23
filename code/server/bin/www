@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+/**
+ * Module dependencies.
+ */
+
+//如果使用ES6语法，如 import export 等 可用下语句转化
+// require('babel-register');
+require('../app');
