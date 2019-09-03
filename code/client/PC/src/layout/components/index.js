@@ -1,3 +1,7 @@
 export { default as Navbar } from './Navbar'
 export { default as Sidebar } from './Sidebar'
+export { default as SubSidebar } from './SubSidebar'
+export { default as Footerbar } from './Footerbar'
+export { default as Rightbar } from './Rightbar'
 export { default as AppMain } from './AppMain'
+export { default as Viewbar } from './Viewbar'
