@@ -33,10 +33,10 @@ export default {
 @import "~@/styles/variables.scss";
 .subSidebar {
   position: absolute;
-  height: calc(100% - #{$footerHeight});
+  height: calc(100% - #{$footer-height});
   top: 0;
-  left: $sideBarWidth;
-  background-color: $subSidebarMenuBg;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  left: $sidebar-width;
+  background-color: $sub-sidebar-bg-color;
+  box-shadow: $light-box-shadow;
 }
 </style>

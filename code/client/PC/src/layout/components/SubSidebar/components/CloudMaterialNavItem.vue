@@ -17,13 +17,14 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~@/styles/variables.scss";
 .cloudMaterialNavItem {
   ul {
     border-bottom: solid 1px #e6e6e6;
     li {
       display: inline-block;
       padding: 6px 4px 6px 4px;
-      font-size: 12px;
+      font-size: $small-text-size;
       cursor: pointer;
       &.title {
         font-weight: bold;

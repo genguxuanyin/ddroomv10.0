@@ -2,15 +2,22 @@
   <div class="houseTypeItem">
     <span class="title">{{ item.title }}</span>
     <div v-if="Array.isArray(item.children) && item.children.length" class="container">
-      <div v-for="(cItem,index) in item.children" :key="index" class="item">
-        <svg-icon :icon-class="cItem.iconClass" />
-        <span v-if="cItem.title" class="title">{{ cItem.title }}</span>
-      </div>
+      <MenuItem
+        v-for="(cItem, index) in item.children"
+        :key="index"
+        class="item column big padding-top-6"
+        :icon="cItem.icon"
+        :title="cItem.title"
+      />
     </div>
   </div>
 </template>
 <script>
+import MenuItem from "@/components/menuItem/MenuItem";
 export default {
+  components: {
+    MenuItem
+  },
   props: {
     item: {
       type: Object,
@@ -26,9 +33,9 @@ export default {
 .houseTypeItem {
   display: flex;
   flex-direction: column;
-  color: $subSidebarMenuText;
+  color: $sub-sidebar-text-color;
   > .title {
-    font-size: 14px;
+    font-size: $middle-text-size;
     font-weight: bolder;
     line-height: 50px;
     height: 50px;
@@ -42,17 +49,9 @@ export default {
     .item {
       width: 33%;
       height: 60px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       cursor: pointer;
       &:hover {
-        background-color: $subSidebarMenuHover;
-      }
-      .title {
-        font-size: 12px;
-        padding: 10px 0 0 0;
+        background-color: $sub-sidebar-hover-bg-color;
       }
     }
   }

@@ -43,12 +43,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "~@/styles/variables.scss";
 .footerbar {
   height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: $small-text-size;
   ul {
     display: flex;
     li {

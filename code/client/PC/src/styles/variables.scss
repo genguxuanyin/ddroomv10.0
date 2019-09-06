@@ -1,42 +1,126 @@
-// sidebar
-$menuText:#bfcbd9;
-$menuActiveText:#409EFF;
-$subMenuActiveText:#f4f4f5; //https://github.com/ElemeFE/element/issues/12951
-
-$menuBg:#3b3d3e;
-$menuHover:#333;
-
-$sideBarActiveBg:#f4f4f5;
-
-$subMenuBg:#1f2d3d;
-$subMenuHover:#001528;
-
-$subSidebarMenuBg:#FFFFFF; //二级菜单文字颜色
-$subSidebarMenuText:#606060; //二级菜单文字颜色
-$subSidebarMenuHover:#F5F5F5; //二级菜单hover背景颜色
-
-$headerHeight: 45px;
-$sideBarWidth: 50px;
-$footerHeight: 30px;
-$rightSideBarHeight: 200px;
-$viewBarWidth: 200px;
-
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+// common
+
+// text-size
+$mini-text-size: 10px;
+$small-text-size: 12px;
+$middle-text-size: 14px;
+$big-text-size: 16px;
+$bigger-text-size: 20px;
+$super-text-size: 30px;
+
+// color
+
+// base
+$base-bg-color: #3b3d3e;
+$base-text-color: #f4f4f4;
+$base-active-bg-color: #409EFF;
+
+//header
+$header-bg-color: #3b3d3e;
+$header-text-color: #f4f4f4;
+$header-hover-bg-color: #409EFF;
+
+//sidebar
+$sidebar-bg-color: #3b3d3e;
+$sidebar-text-color: #f4f4f4;
+$sidebar-hover-bg-color: #333333;
+$sidebar-active-bg-color: #f4f4f4;
+$sidebar-active-color: #409EFF;
+
+$sub-sidebar-bg-color: #f4f4f4;
+$sub-sidebar-text-color: #333333;
+$sub-sidebar-hover-bg-color: #eee;
+$sub-sidebar-active-bg-color: #409EFF;
+
+//footer
+$footer-bg-color: #3b3d3e;
+$footer-text-color: #f4f4f4;
+
+//right-bar
+$right-sidebar-bg-color: #f4f4f4;
+$right-sidebar-text-color: #3b3d3e;
+$right-sidebar-hover-bg-color: #eee;
+
+//view-bar
+$view-bg-color: #f4f4f4;
+$view-text-color: #3b3d3e;
+$view-hover-bg-color: #eee;
+$view-active-color: #409EFF;
+
+//size
+$header-height: 45px;
+$sidebar-width: 50px;
+$footer-height: 30px;
+$right-sideBar-height: 200px;
+$viewbar-width: 200px;
+
+$base-border-radius: 4px;
+
+$base-box-shadow: 0 2px 4px rgba(0, 0, 0, .12),
+0 0 6px rgba(0, 0, 0, .04);
+$light-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+
 :export {
-  menuText: $menuText;
-  menuActiveText: $menuActiveText;
-  subMenuActiveText: $subMenuActiveText;
-  menuBg: $menuBg;
-  menuHover: $menuHover;
-  subMenuBg: $subMenuBg;
-  subMenuHover: $subMenuHover;
-  headerHeight: $headerHeight;
-  sideBarWidth: $sideBarWidth;
-  footerHeight: $footerHeight;
-  rightSideBarHeight: $rightSideBarHeight;
-  viewBarWidth: $viewBarWidth;
-  subSidebarMenuBg: $subSidebarMenuBg;
-  subSidebarMenuText: $subSidebarMenuText;
-  subSidebarMenuHover: $subSidebarMenuHover;
+  // common
+
+  // text-size
+  mini-text-size: $mini-text-size;
+  small-text-size: $small-text-size;
+  middle-text-size: $middle-text-size;
+  big-text-size: $big-text-size;
+  bigger-text-size: $bigger-text-size;
+  super-text-size: $super-text-size;
+
+  // color
+
+  // base
+  base-bg-color: $base-bg-color;
+  base-text-color: $base-text-color;
+  base-active-bg-color: $base-active-bg-color;
+
+  //header
+  header-bg-color: $header-bg-color;
+  header-text-color: $header-text-color;
+  header-hover-bg-color: $header-hover-bg-color;
+
+  //sidebar
+  sidebar-bg-color: $sidebar-bg-color;
+  sidebar-text-color: $sidebar-text-color;
+  sidebar-hover-bg-color: $sidebar-hover-bg-color;
+  sidebar-active-bg-color: $sidebar-active-bg-color;
+  sidebar-active-color: $sidebar-active-color;
+
+  sub-sidebar-bg-color: $sub-sidebar-bg-color;
+  sub-sidebar-text-color: $sub-sidebar-text-color;
+  sub-sidebar-hover-bg-color: $sub-sidebar-hover-bg-color;
+  sub-sidebar-active-bg-color: $sub-sidebar-active-bg-color;
+
+  //footer
+  footer-bg-color: $footer-bg-color;
+  footer-text-color: $footer-text-color;
+
+  //right-bar
+  right-sidebar-bg-color: $right-sidebar-bg-color;
+  right-sidebar-text-color: $right-sidebar-text-color;
+  right-sidebar-hover-bg-color: $right-sidebar-hover-bg-color;
+
+  //view-bar
+  view-bg-color: $view-bg-color;
+  view-text-color: $view-text-color;
+  view-hover-bg-color: $view-hover-bg-color;
+  view-active-color: $view-active-color;
+
+  //size
+  header-height: $header-height;
+  sidebar-width: $sidebar-width;
+  footer-height: $footer-height;
+  right-sideBar-height: $right-sideBar-height;
+  viewbar-width: $viewbar-width;
+
+  base-border-radius: $base-border-radius;
+
+  base-box-shadow: $base-box-shadow;
+  light-box-shadow: $light-box-shadow;
 }

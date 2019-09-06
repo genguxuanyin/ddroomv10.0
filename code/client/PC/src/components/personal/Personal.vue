@@ -39,6 +39,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/variables.scss";
 .personal {
   float: right;
   height: 100%;
@@ -52,7 +53,7 @@ export default {
     display: inline-block;
     padding: 0 8px;
     height: 100%;
-    font-size: 18px;
+    font-size: $bigger-text-size;
     color: #5a5e66;
     vertical-align: text-bottom;
 
@@ -85,7 +86,7 @@ export default {
         position: absolute;
         right: -20px;
         top: 25px;
-        font-size: 12px;
+        font-size: $small-text-size;
       }
     }
   }

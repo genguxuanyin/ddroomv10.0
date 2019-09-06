@@ -160,48 +160,42 @@ export default {
 .el-footer,
 .el-aside {
   position: absolute;
-  background-color: $menuBg;
-  color: #fff;
   z-index: 2;
-  font-size: 14px;
+  background-color: $base-bg-color;
+  color: $base-text-color;
+  font-size: $middle-text-size;
 }
 .el-header {
-  height: $headerHeight !important;
+  height: $header-height !important;
   width: 100%;
 }
 .el-footer {
-  height: $footerHeight !important;
-  left: $sideBarWidth;
+  height: $footer-height !important;
+  left: $sidebar-width;
   bottom: 0;
-  width: calc(100% - #{$sideBarWidth});
+  width: calc(100% - #{$sidebar-width});
 }
-
 .el-aside {
-  height: calc(100% - #{$headerHeight});
+  height: calc(100% - #{$header-height});
   left: 0;
-  top: $headerHeight;
-  width: $sideBarWidth !important;
+  top: $header-height;
+  width: $sidebar-width !important;
   overflow: visible;
 }
-
 .el-aside.right {
-  top: calc(50% - #{$rightSideBarHeight});
-  height: $rightSideBarHeight;
+  top: calc(50% - #{$right-sideBar-height});
+  height: $right-sideBar-height;
   left: auto;
   right: 0;
-  background-color: $subSidebarMenuBg;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background-color: $right-sidebar-bg-color;
+  color: $right-sidebar-text-color;
+  border-top-left-radius: $base-border-radius;
+  border-bottom-left-radius: $base-border-radius;
+  box-shadow: $light-box-shadow;
 }
-
 .el-main {
-  background-color: #e9eef3;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
-  padding: 0;
   width: 100%;
   height: 100%;
+  padding: 0;
 }
 </style>

@@ -1,32 +1,33 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">name: {{ name }}</div>
+    <Base />
     <Welcome />
   </div>
 </template>
 
 <script>
-import Welcome from "@/components/welcome/Welcome";
-import { mapGetters } from "vuex";
+import Base from '../../components/three/Base'
+import Welcome from '@/components/welcome/Welcome'
+import { mapGetters } from 'vuex'
 export default {
-  name: "Dashboard",
+  name: 'Dashboard',
   components: {
+    Base,
     Welcome
   },
   computed: {
-    ...mapGetters(["name"])
+    ...mapGetters(['name'])
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
 .dashboard {
   &-container {
-    margin: 30px;
-  }
-  &-text {
-    font-size: 30px;
-    line-height: 46px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
   }
 }
 </style>

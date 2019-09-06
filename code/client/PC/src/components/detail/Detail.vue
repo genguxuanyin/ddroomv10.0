@@ -1,5 +1,5 @@
 <template>
-  <div class="detailInfo">
+  <div class="detail">
     <span class="name">{{ item.name }}</span>
     <el-image :src="item.url" :fit="fit"></el-image>
   </div>

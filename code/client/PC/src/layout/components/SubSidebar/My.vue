@@ -21,7 +21,7 @@
         ></el-input>
       </div>
       <div class="content">
-        <SampleRoomItem v-for="l in list" :key="l.id" :item="l" />
+        <ImageItem v-for="l in list" :key="l.id" :item="l" class="margin-6" />
       </div>
       <Paginations :total="total" @handleCurrentChange="handleCurrentChange" />
     </div>
@@ -29,11 +29,11 @@
 </template>
 <script>
 import Paginations from "@/components/paginations/Paginations";
-import SampleRoomItem from "./components/SampleRoomItem";
+import ImageItem from "@/components/imageItem/ImageItem";
 export default {
   components: {
-    SampleRoomItem,
-    Paginations
+    Paginations,
+    ImageItem
   },
   data() {
     return {
@@ -125,7 +125,7 @@ export default {
           name: "天一仁和--时光"
         }
       ],
-      total: 180
+      total: 160
     };
   },
   methods: {
@@ -154,6 +154,7 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~@/styles/variables.scss";
 $allWidth: 300px;
 $navWidth: 60px;
 .sampleRoom {
@@ -167,30 +168,20 @@ $navWidth: 60px;
     .el-menu-vertical {
       width: $navWidth;
       height: 100%;
+      background-color: $sub-sidebar-bg-color;
       .title {
         font-weight: bold;
         padding: 0 0 0 2px;
-        font-size: 12px;
+        font-size: $small-text-size;
       }
       .el-menu-item {
         width: $navWidth;
         min-width: $navWidth;
         height: 26px;
         line-height: 26px;
-        font-size: 12px;
+        font-size: $small-text-size;
         padding: 0 0 0 6px !important;
       }
-    }
-  }
-  .container {
-    width: $allWidth - $navWidth;
-    .header {
-      padding: 10px;
-    }
-    .content {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
     }
   }
 }
@@ -204,5 +195,18 @@ $navWidth: 60px;
 .sampleRoom .el-submenu__icon-arrow {
   display: block !important;
   position: static;
+}
+.sampleRoom {
+  .container {
+    width: $allWidth - $navWidth;
+    .header {
+      padding: 10px;
+    }
+    .content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
 }
 </style>

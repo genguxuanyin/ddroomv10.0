@@ -1,4 +1,4 @@
-export { default as Navbar } from './Navbar'
+export { default as Navbar } from './Navbar/index'
 export { default as Sidebar } from './Sidebar'
 export { default as SubSidebar } from './SubSidebar'
 export { default as Footerbar } from './Footerbar'

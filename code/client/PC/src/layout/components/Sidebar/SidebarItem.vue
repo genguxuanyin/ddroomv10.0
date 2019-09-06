@@ -5,20 +5,24 @@
     :class="{ active: item.isActive}"
     @click="selectedSideMenu"
   >
-    <item :icon="item.icon" :title="item.isActive && item.children && item.children.length ? '' : item.title" />
+    <MenuItem
+      :icon="item.icon"
+      :title="item.isActive && item.children && item.children.length ? '' : item.title"
+      class="big padding-top-6 column"
+    />
     <div v-if="item.isActive && item.children && item.children.length" class="sub-menu-wrapper">
-      <item v-for="(subItem,i) in item.children" :key="i" :title="subItem.title" />
+      <MenuItem v-for="(subItem,i) in item.children" :key="i" :title="subItem.title" class="padding-top-6" />
     </div>
   </div>
 </template>
 
 <script>
-import Item from "./Item";
+import MenuItem from "@/components/menuItem/MenuItem";
 import FixiOSBug from "./FixiOSBug";
 
 export default {
   name: "SidebarItem",
-  components: { Item },
+  components: { MenuItem },
   mixins: [FixiOSBug],
   props: {
     item: {
@@ -52,16 +56,13 @@ export default {
   justify-content: space-around;
   align-items: center;
   cursor: pointer;
-  font-size: 12px;
+  font-size: $small-text-size;
   &.active {
-    color: $menuActiveText;
-    background-color: $sideBarActiveBg !important;
+    color: $sidebar-active-color;
+    background-color: $sidebar-active-bg-color !important;
   }
   &:hover {
-    background-color: $menuHover;
-  }
-  span {
-    margin-top: 6px;
+    background-color: $sidebar-hover-bg-color;
   }
   .sub-menu-wrapper {
     display: flex;

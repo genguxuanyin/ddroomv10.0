@@ -57,26 +57,27 @@ import { mapGetters } from "vuex";
 import Personal from "../personal/Personal";
 export default {
   name: "Header",
+  components: {
+    Personal
+  },
   data() {
     return {
       activeIndex: "1"
     };
   },
+  computed: {
+    ...mapGetters(["avatar"])
+  },
   methods: {
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     }
-  },
-  computed: {
-    ...mapGetters(["avatar"])
-  },
-  components: {
-    Personal
   }
 };
 </script>
 
 <style lang="scss" scoped>
+@import "~@/styles/variables.scss";
 .header {
   height: 70px;
   width: 100%;
@@ -94,7 +95,7 @@ export default {
     width: 200px;
     height: 70px;
     line-height: 70px;
-    font-size: 30px;
+    font-size: $super-text-size;
     font-weight: bolder;
     text-align: center;
   }
@@ -102,7 +103,7 @@ export default {
     height: 100%;
   }
   .right {
-    font-size: 14px;
+    font-size: $middle-text-size;
     ul {
       box-sizing: border-box;
       display: flex;
@@ -122,7 +123,7 @@ export default {
 .start {
   background-color: #1d1e20;
   color: #fff;
-  font-size: 14px;
+  font-size: $middle-text-size;
   -webkit-border-radius: 4px;
   border-radius: 4px;
   padding: 3px 8px;

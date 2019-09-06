@@ -12,7 +12,7 @@
               <div class="title">快速设计</div>
               <div class="menu">
                 <div v-for="(v,i) in menus" :key="i" class="item">
-                  <item :icon="v.icon" :title="v.title" />
+                  <MenuItem :icon="v.icon" :title="v.title" class="column super-big padding-top-6" />
                 </div>
               </div>
             </div>
@@ -26,17 +26,23 @@
             </div>
             <div class="slide">
               <el-carousel height="200px">
-                <el-carousel-item v-for="item in 4" :key="item">
-                  <h3 class="small">{{ item }}</h3>
+                <el-carousel-item v-for="(item, index) in carousels" :key="index">
+                  <el-image :src="item.url" fit="cover"></el-image>
                 </el-carousel-item>
               </el-carousel>
             </div>
           </div>
           <div class="right">
             <div class="title">我的方案</div>
-            <div class="solution">
-              <SolutionItem v-for="(v,i) in solutions" :key="i" :item="v" />
+            <div v-if="solutions && solutions.length > 0">
+              <ImageItem v-for="(v,i) in solutions.slice(0, 4)" :key="i" :item="v" class="margin-6">
+                <template v-slot:header>
+                  <span></span>
+                </template>
+              </ImageItem>
+              <el-link :underline="false" type="primary">查看更多</el-link>
             </div>
+            <div v-else>空空如也...</div>
           </div>
         </div>
       </div>
@@ -44,16 +50,16 @@
   </div>
 </template>
 <script>
-import Item from "@/layout/components/Sidebar/Item";
-import SolutionItem from "../solution/SolutionItem";
+import MenuItem from "@/components/menuItem/MenuItem";
+import ImageItem from "../imageItem/ImageItem";
 export default {
   components: {
-    Item,
-    SolutionItem
+    MenuItem,
+    ImageItem
   },
   data() {
     return {
-      isShow: true,
+      isShow: false,
       menus: [
         {
           title: "户型",
@@ -119,6 +125,57 @@ export default {
             "http://manager.ddroom.cn//upload/render/20190827114554/90d69d30.jpg",
           name: "天一仁和--时光",
           time: "2019/09/03 17:30"
+        },
+        {
+          id: "2",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190828160549/e3832a7c.jpg",
+          name: "星雨华府--草木",
+          time: "2019/09/03 17:30"
+        },
+        {
+          id: "3",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190827114554/90d69d30.jpg",
+          name: "天一仁和--时光",
+          time: "2019/09/03 17:30"
+        },
+        {
+          id: "2",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190828160549/e3832a7c.jpg",
+          name: "星雨华府--草木",
+          time: "2019/09/03 17:30"
+        }
+      ],
+      carousels: [
+        {
+          id: "1",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190829152729/c8552f9b.jpg",
+          name: "万科海上明月--扶风",
+          time: "2019/09/03 17:30"
+        },
+        {
+          id: "2",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190828160549/e3832a7c.jpg",
+          name: "星雨华府--草木",
+          time: "2019/09/03 17:30"
+        },
+        {
+          id: "3",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190829152729/c8552f9b.jpg",
+          name: "万科海上明月--扶风",
+          time: "2019/09/03 17:30"
+        },
+        {
+          id: "4",
+          url:
+            "http://manager.ddroom.cn//upload/render/20190828160549/e3832a7c.jpg",
+          name: "星雨华府--草木",
+          time: "2019/09/03 17:30"
         }
       ]
     };
@@ -134,13 +191,9 @@ export default {
     color: #000;
     & > .title {
       text-align: center;
-      font-size: 18px;
+      font-size: $bigger-text-size;
       font-weight: bolder;
       letter-spacing: 2px;
-    }
-    .title {
-      height: 50px;
-      line-height: 50px;
     }
     .content {
       display: flex;
@@ -148,28 +201,22 @@ export default {
         display: flex;
         width: 80%;
         flex-direction: column;
+        padding: 20px;
         .title {
-          padding: 0 0 0 20px;
           font-weight: bold;
-          font-size: 16px;
+          font-size: $big-text-size;
+          margin: 10px 0;
         }
         .quick-start {
+          margin: 20px 0;
           .menu {
             display: flex;
             .item {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              width: 100px;
-              line-height: 50px;
+              margin-right: 6px;
+              padding: 20px;
               cursor: pointer;
-              padding: 10px 0 0 0;
-              svg {
-                width: 3em;
-                height: 3em;
-              }
               &:hover {
-                background-color: $subSidebarMenuHover;
+                background-color: $sub-sidebar-hover-bg-color;
               }
             }
           }
@@ -177,29 +224,28 @@ export default {
         .study {
           display: flex;
           flex-direction: column;
-          height: 130px;
           .course {
             display: flex;
             flex-wrap: wrap;
-            height: 30px;
-            line-height: 30px;
             padding: 0 20px 0 20px;
             li {
               width: 50%;
+              line-height: 30px;
               &:hover {
-                color: $menuActiveText;
+                color: $base-active-bg-color;
               }
             }
           }
         }
         .slide {
-          padding: 20px;
-          line-height: 20px;
+          margin: 20px 0;
+          .el-carousel {
+            overflow-y: hidden;
+          }
           .el-carousel__item h3 {
             color: #475669;
-            font-size: 14px;
+            font-size: $middle-text-size;
             opacity: 0.75;
-            line-height: 200px;
             margin: 0;
           }
           .el-carousel__item:nth-child(2n) {
@@ -211,21 +257,13 @@ export default {
         }
       }
       .right {
-        flex-grow: 1;
-        .solution {
-          padding: 0 0 0 20px;
-        }
+        width: 20%;
         .title {
-          padding: 0 0 0 20px;
+          margin: 20px 0 20px 0;
           font-weight: bold;
-          font-size: 16px;
+          font-size: $big-text-size;
         }
       }
-      /* .quick-start,
-      .study,
-      .slide {
-        border: 1px solid black;
-      } */
     }
   }
 }

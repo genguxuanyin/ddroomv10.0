@@ -1,19 +1,13 @@
 <template>
   <div class="rightbar">
-    <sidebar-item
-      v-for="(menu, index) in menus"
-      :key="index"
-      :item="menu"
-      :index="index"
-      @selectedSideMenu="selectedSideMenu"
-    />
+    <MenuItem v-for="(menu, index) in menus" :key="index" :icon="menu.icon" :title="menu.title" class="menu-wrapper column padding-top-6" />
   </div>
 </template>
 <script>
-import SidebarItem from "./Sidebar/SidebarItem";
+import MenuItem from "@/components/menuItem/MenuItem";
 export default {
   components: {
-    SidebarItem
+    MenuItem
   },
   data() {
     return {
@@ -38,9 +32,6 @@ export default {
         }
       ]
     };
-  },
-  methods: {
-    selectedSideMenu() {}
   }
 };
 </script>
@@ -52,9 +43,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  color: $subSidebarMenuText;
-  .menu-wrapper:hover{
-    background-color: $subSidebarMenuHover;
+  color: $right-sidebar-text-color;
+  cursor: pointer;
+  .menu-wrapper:hover {
+    background-color: $right-sidebar-hover-bg-color;
   }
 }
 </style>

@@ -16,15 +16,15 @@ export default {
           title: "自由绘制",
           children: [
             {
-              iconClass: "my",
+              icon: "my",
               title: "画墙"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "矩形画墙"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "自由建模"
             }
           ]
@@ -33,22 +33,22 @@ export default {
           title: "从形状绘制",
           children: [
             {
-              iconClass: "my"
+              icon: "my"
             },
             {
-              iconClass: "my"
+              icon: "my"
             },
             {
-              iconClass: "my"
+              icon: "my"
             },
             {
-              iconClass: "my"
+              icon: "my"
             },
             {
-              iconClass: "my"
+              icon: "my"
             },
             {
-              iconClass: "my"
+              icon: "my"
             }
           ]
         },
@@ -56,15 +56,15 @@ export default {
           title: "结构部件",
           children: [
             {
-              iconClass: "my",
+              icon: "my",
               title: "柱子"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "地台"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "横梁"
             }
           ]
@@ -73,27 +73,27 @@ export default {
           title: "门窗",
           children: [
             {
-              iconClass: "my",
+              icon: "my",
               title: "单开门"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "双开门"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "推拉门"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "矩形窗"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "落地窗"
             },
             {
-              iconClass: "my",
+              icon: "my",
               title: "飘窗"
             }
           ]

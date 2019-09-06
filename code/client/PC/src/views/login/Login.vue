@@ -192,6 +192,7 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
+@import "~@/styles/variables.scss";
 $bg: #2d3a4b;
 $dark_gray: #889aa4;
 $light_gray: #eee;
@@ -221,7 +222,7 @@ $light_gray: #eee;
     }
 
     .tips {
-      font-size: 14px;
+      font-size: $middle-text-size;
       color: $bg;
       margin-bottom: 10px;
 
@@ -244,7 +245,7 @@ $light_gray: #eee;
       position: relative;
 
       .title {
-        font-size: 26px;
+        font-size: $super-text-size;
         color: $bg;
         margin: 0px auto 40px auto;
         text-align: center;
@@ -256,7 +257,7 @@ $light_gray: #eee;
       position: absolute;
       right: 10px;
       top: 7px;
-      font-size: 16px;
+      font-size: $big-text-size;
       color: $dark_gray;
       cursor: pointer;
       user-select: none;

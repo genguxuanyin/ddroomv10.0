@@ -17,7 +17,13 @@
         ></el-input>
       </div>
       <div class="content">
-        <CloudMaterialItem v-for="l in list" :key="l.id" :item="l" />
+        <div v-for="l in list" :key="l.id" class="item">
+          <ImageItem :item="l">
+            <template v-solt:default>
+              <span></span>
+            </template>
+          </ImageItem>
+        </div>
       </div>
       <Paginations :total="total" @handleCurrentChange="handleCurrentChange" />
     </div>
@@ -26,11 +32,11 @@
 <script>
 import Paginations from "@/components/paginations/Paginations";
 import CloudMaterialNavItem from "./components/CloudMaterialNavItem";
-import CloudMaterialItem from "./components/CloudMaterialItem";
+import ImageItem from "@/components/imageItem/ImageItem";
 export default {
   components: {
     CloudMaterialNavItem,
-    CloudMaterialItem,
+    ImageItem,
     Paginations
   },
   data() {
@@ -196,6 +202,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+@import "~@/styles/variables.scss";
 $allWidth: 300px;
 $navWidth: 60px;
 .cloudMaterial {
@@ -217,7 +224,7 @@ $navWidth: 60px;
         line-height: 40px;
         font-weight: bold;
         padding: 0 0 0 2px;
-        font-size: 12px;
+        font-size: $small-text-size;
         text-align: center;
         cursor: pointer;
         &:hover {
@@ -235,7 +242,11 @@ $navWidth: 60px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      padding: 0 12px 0 12px;
+      .item {
+        width: 120px;
+        height: 120px;
+        padding: 6px;
+      }
       &:after {
         content: "";
         flex: auto;
