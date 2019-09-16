@@ -18,6 +18,7 @@ export default {
   top: 70px;
   .banner {
     width: 100%;
+    font-size: 0;
     img {
       width: 100%;
     }

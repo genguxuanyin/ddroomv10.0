@@ -55,10 +55,8 @@ if (!Group.prototype.track && !Group.prototype.free) {
       let result = new Set();
       this.track(resource, result);
       for (const r of result) {
-        if (r instanceof Object3D) {
-          if (r.parent) {
-            r.parent.remove(r);
-          }
+        if (r instanceof Object3D && r.parent) {
+          r.parent.remove(r);
         }
         if (r.dispose) {
           r.dispose();

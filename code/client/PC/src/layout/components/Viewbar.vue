@@ -11,22 +11,26 @@
   </div>
 </template>
 <script>
+import EventManager from '../../utils/event'
 export default {
   data() {
     return {
       views: [
         {
           title: '2D',
-          icon: '',
-          isActive: true
-        },
-        {
-          title: '3D',
+          name: '2d',
           icon: '',
           isActive: false
         },
         {
+          title: '3D',
+          name: '3d',
+          icon: '',
+          isActive: true
+        },
+        {
           title: 'FV',
+          name: 'fv',
           icon: '',
           isActive: false
         }
@@ -35,10 +39,12 @@ export default {
   },
   methods: {
     changeView(i) {
+      if (this.views[i]['isActive']) return
       this.views.forEach(element => {
         element.isActive = false
       })
       this.views[i]['isActive'] = true
+      EventManager.dispatchEvent({ type: 'menu-change-view', data: this.views[i] })
     }
   }
 }
@@ -71,10 +77,10 @@ export default {
       align-items: center;
       flex-grow: 1;
       &:nth-last-child(1) {
-        border-bottom-right-radius: 6px;
+        border-bottom-right-radius: $base-border-radius;
       }
       &:nth-child(1) {
-        border-bottom-left-radius: 6px;
+        border-bottom-left-radius: $base-border-radius;
       }
       &.isActive {
         background-color: $view-active-color !important;

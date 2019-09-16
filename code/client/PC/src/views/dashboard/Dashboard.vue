@@ -1,22 +1,30 @@
 <template>
   <div class="dashboard-container">
-    <Base />
+    <Three @on-click="clickFun" />
+    <!-- <Two /> -->
     <Welcome />
   </div>
 </template>
 
 <script>
-import Base from '../../components/three/Base'
+import Three from '../../components/three/Base'
+// import Two from '../../components/two/Base'
 import Welcome from '@/components/welcome/Welcome'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Dashboard',
   components: {
-    Base,
+    Three,
+    // Two,
     Welcome
   },
   computed: {
     ...mapGetters(['name'])
+  },
+  methods: {
+    clickFun(v) {
+      console.log(v)
+    }
   }
 }
 </script>

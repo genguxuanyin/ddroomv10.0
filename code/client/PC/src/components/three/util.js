@@ -1,6 +1,9 @@
 import {
   Box3, Vector3, Vector2, BufferAttribute
 } from 'three';
+import {
+  attempt
+} from 'lodash'
 
 /* eslint-disable */
 
@@ -157,4 +160,12 @@ function toIndexed(bufferGeometry) {
   }
 }
 
-export { getSize, getCenter, toIndexed };
+function jsonToStr(obj) {
+  return attempt(JSON.stringify.bind(null, obj));
+}
+
+function strToJson(str) {
+  return attempt(JSON.parse.bind(null, str));
+}
+
+export { getSize, getCenter, toIndexed, jsonToStr, strToJson };

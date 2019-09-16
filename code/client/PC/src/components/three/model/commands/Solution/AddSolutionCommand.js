@@ -1,0 +1,25 @@
+import Command from "../Command";
+
+export default class AddSolutionCommand extends Command {
+  constructor(manager, solution, onprogress) {
+    super(manager);
+    this.type = 'AddSolutionCommand';
+    this.name = 'AddSolution';
+    this.solution = solution;
+    this.onprogress = onprogress;
+  }
+  execute() {
+    this.manager.addSolution(this.solution, this.onprogress, true, (solution) => {
+      var eventObj = { type: 'solution-add', solution: solution, onprogress: this.onprogress };
+      this.manager.dispatchEvent(eventObj);
+      this.manager.dispatchEvent({ type: 'solution-changed', solution: solution, operate: eventObj });
+    });
+  }
+  undo() {
+    this.manager.removeSolution(this.solution.getKey(), true, (solution) => {
+      var eventObj = { type: 'solution-remove', solution: solution };
+      this.manager.dispatchEvent(eventObj);
+      this.manager.dispatchEvent({ type: 'solution-changed', solution: solution, operate: eventObj });
+    });
+  }
+}
