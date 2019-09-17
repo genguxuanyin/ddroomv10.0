@@ -2,7 +2,12 @@
   <div class="personal">
     <el-dropdown class="avatar-container" trigger="hover" size="mini" @command="handleCommand">
       <div class="avatar-wrapper">
-        <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar" />
+        <el-image class="user-avatar" src="https://dummyimage.com/80x80/000/fff">
+          <div slot="error" class="image-slot">
+            <i class="el-icon-picture-outline"></i>
+          </div>
+        </el-image>
+        <!-- <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar" /> -->
         <i class="el-icon-caret-bottom" />
       </div>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
