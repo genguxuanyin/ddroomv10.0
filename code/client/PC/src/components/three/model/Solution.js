@@ -15,6 +15,8 @@ import EditSolutionCommand from './commands/Solution/EditSolutionCommand'
 
 import Product from './Product'
 
+import TYPES from '../types'
+
 export default class Solution {
   constructor(manager) {
     this.manager = manager;
@@ -104,7 +106,7 @@ export default class Solution {
         this.oldActivePart = this.activePart;
         this.activePart = undefined;
       }
-      this.manager.dispatchEvent({ type: 'product-changed-active', oldProduct: this.oldActiveProduct, activeProduct: this.activeProduct, solution: this });
+      this.manager.dispatchEvent({ type: TYPES['product-changed-active'], activeProduct: this.activeProduct, oldActiveProduct: this.oldActiveProduct });
       return true;
     }
     return false;
@@ -129,7 +131,7 @@ export default class Solution {
         this.oldActivePart.setActive(false);
       }
       this.activePart = part;
-      this.manager.dispatchEvent({ type: 'part-changed-active', oldPart: this.oldActivePart, activePart: this.activePart, solution: this });
+      this.manager.dispatchEvent(TYPES['part-changed-active'], { activePart: this.activePart, oldActivePart: this.oldActivePart });
       return true;
     }
     return result;
@@ -230,7 +232,7 @@ export default class Solution {
       const model = this._model;
       if (Array.isArray(model.products)) {
         model.products.forEach(p => {
-          if (p.enabled) {
+          if (!p.disabled) {
             const product = new Product(this);
             product.init(p);
             this.addProduct(product, onprogress, true);
@@ -245,7 +247,7 @@ export default class Solution {
       this.state = 'uniniting';
       const model = this.getModel();
       if (Array.isArray(model.products)) {
-        model.products.filter(p => p.enabled).forEach(p => this.removeProduct(p.key, true));
+        model.products.filter(p => !p.disabled).forEach(p => this.removeProduct(p.key, true));
       }
       this.state = 'uninited';
     }

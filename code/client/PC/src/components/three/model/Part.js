@@ -166,7 +166,7 @@ export default class Part {
       if (isSelf) {
         if (Array.isArray(model.parts) && model.parts.length > 0) {
           model.parts.forEach(p => {
-            if (p.enabled) {
+            if (!p.disabled) {
               const subPart = new Part(this.product, part);
               subPart.init(p);
               part.addPart(subPart, onprogress, true, true, true);
@@ -185,7 +185,7 @@ export default class Part {
         var model = part.getModel();
         if (isSelf) {
           if (Array.isArray(model.parts) && model.parts.length > 0) {
-            model.parts.filter(p => p.enabled).forEach(p => part.removePart(p.key, true, true, true));
+            model.parts.filter(p => !p.disabled).forEach(p => part.removePart(p.key, true, true, true));
           }
         }
         delete this._parts[key];
@@ -212,11 +212,9 @@ export default class Part {
         result.push(this.removePart(parts[0].key));
         break;
       default:
-        this.beginGroup();
         while (parts.length > 0) {
           result.push(this.removePart(parts[0].key));
         }
-        this.endGroup();
         break;
     }
     return result;
@@ -235,12 +233,6 @@ export default class Part {
   }
   redo() {
     this.product.redo();
-  }
-  beginGroup() {
-    this.product.beginGroup();
-  }
-  endGroup() {
-    this.product.endGroup();
   }
   toString() {
     return jsonToStr(this.getModel());

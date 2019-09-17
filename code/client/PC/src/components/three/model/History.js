@@ -2,6 +2,7 @@
  * @author dforrer / https://github.com/dforrer
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
+import TYPES from '../types'
 export default class History {
   constructor(manager) {
     this.manager = manager;
@@ -13,7 +14,7 @@ export default class History {
     this.historyDisabled = false;
     // this.config = manager.config;
 
-    this.manager.addEventListener('change-history-state', (ev) => {
+    this.manager.addEventListener(TYPES['change-history-state'], (ev) => {
       this.historyDisabled = ev.value;
     });
   }
@@ -55,7 +56,7 @@ export default class History {
     // clearing all the redo-commands
 
     this.redos = [];
-    this.manager.dispatchEvent(cmd);
+    // this.manager.dispatchEvent(cmd);
   }
   undo() {
     if (this.historyDisabled) {
@@ -76,7 +77,7 @@ export default class History {
     if (cmd !== undefined) {
       cmd.undo();
       this.redos.push(cmd);
-      this.manager.dispatchEvent(cmd);
+      // this.manager.dispatchEvent(cmd);
     }
 
     return cmd;
@@ -100,7 +101,7 @@ export default class History {
     if (cmd !== undefined) {
       cmd.execute();
       this.undos.push(cmd);
-      this.manager.dispatchEvent(cmd);
+      // this.manager.dispatchEvent(cmd);
     }
 
     return cmd;
@@ -171,16 +172,14 @@ export default class History {
     }
 
     // Select the last executed undo-command
-    this.manager.dispatchEvent(this.undos[this.undos.length - 1]);
+    // this.manager.dispatchEvent(this.undos[this.undos.length - 1]);
   }
   clear() {
     this.undos = [];
     this.redos = [];
     this.idCounter = 0;
 
-    this.manager.dispatchEvent({
-      type: 'clear-history'
-    });
+    this.manager.dispatchEvent(TYPES['clear-history']);
   }
   goToState(id) {
     if (this.historyDisabled) {
@@ -211,8 +210,8 @@ export default class History {
     // this.manager.signals.sceneGraphChanged.active = true;
     // this.manager.signals.historyChanged.active = true;
 
-    this.manager.dispatchEvent();
-    this.manager.dispatchEvent(cmd);
+    // this.manager.dispatchEvent();
+    // this.manager.dispatchEvent(cmd);
   }
   enableSerialization(id) {
     /**

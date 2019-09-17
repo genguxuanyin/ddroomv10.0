@@ -60,7 +60,6 @@ export default class LightManager {
     }
     if (config.name && !this.configs[config.name]) {
       light.name = config.name;
-      this.configs[config.name] = config;
       this.lights[config.name] = light;
       this.setLight(config.name, config);
       this.group.add(light);

@@ -11,7 +11,8 @@
   </div>
 </template>
 <script>
-import EventManager from '../../utils/event'
+import ee from '../../utils/event'
+import TYPES from '@/components/three/types'
 export default {
   data() {
     return {
@@ -44,7 +45,7 @@ export default {
         element.isActive = false
       })
       this.views[i]['isActive'] = true
-      EventManager.dispatchEvent({ type: 'menu-change-view', data: this.views[i] })
+      ee.emit(TYPES['menu-change-view'], { data: this.views[i] })
     }
   }
 }

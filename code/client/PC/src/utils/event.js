@@ -1,4 +1,2 @@
-import {
-  EventDispatcher
-} from 'three'
-export default new EventDispatcher()
+import EventEmitter from 'wolfy87-eventemitter'
+export default new EventEmitter()

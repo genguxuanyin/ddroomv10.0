@@ -1,5 +1,5 @@
 import Command from "../Command";
-
+import TYPES from '../../../types'
 export default class EditProductCommand extends Command {
   constructor(manager, product, param) {
     super(manager);
@@ -7,20 +7,20 @@ export default class EditProductCommand extends Command {
     this.name = 'EditProduct';
     this.product = product;
     this.param = param || {};
+    this.oldValue = this.product.getAtt(this.param.url);
   }
   execute() {
-    this.oldValue = this.product.getAtt(this.param.url);
     this.product.setAtt(this.param.url, this.param.value, true);
-    var eventObj = { type: 'product-edit', operate: this.param.type, solution: this.product.solution, product: this.product };
+    var eventObj = { type: TYPES['product-edit'], product: this.product, url: this.param.url };
     this.manager.dispatchEvent(eventObj);
-    this.manager.dispatchEvent({ type: 'product-changed', solution: this.product.solution, product: this.product, operate: eventObj });
-    this.manager.dispatchEvent({ type: 'solution-changed', solution: this.product.solution, operate: eventObj });
+    this.manager.dispatchEvent({ type: TYPES['product-changed'], product: this.product, operate: eventObj });
+    this.manager.dispatchEvent({ type: TYPES['solution-changed'], solution: this.product.solution, operate: eventObj });
   }
   undo() {
     this.product.setAtt(this.param.url, this.oldValue, true);
-    var eventObj = { type: 'product-edit', operate: this.param.type, solution: this.product.solution, product: this.product };
+    var eventObj = { type: TYPES['product-edit'], product: this.product, url: this.param.url };
     this.manager.dispatchEvent(eventObj);
-    this.manager.dispatchEvent({ type: 'product-changed', solution: this.product.solution, product: this.product, operate: eventObj });
-    this.manager.dispatchEvent({ type: 'solution-changed', solution: this.product.solution, operate: eventObj });
+    this.manager.dispatchEvent({ type: TYPES['product-changed'], product: this.product, operate: eventObj });
+    this.manager.dispatchEvent({ type: TYPES['solution-changed'], solution: this.product.solution, operate: eventObj });
   }
 }

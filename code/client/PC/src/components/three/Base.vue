@@ -16,7 +16,8 @@
 
 <script>
 import Designer from './Designer'
-import EventManager from '../../utils/event'
+import ee from '../../utils/event'
+import TYPES from './types'
 const suportWebGL = (() => {
   try {
     const canvas = document.createElement('canvas')
@@ -37,17 +38,18 @@ export default {
     }
   },
   mounted() {
+    var me = this // EventEmitter内部绑定了 this
     this.designer.init()
-    EventManager.addEventListener('menu-change-view', ev => {
+    ee.addListener(TYPES['menu-change-view'], ev => {
       switch (ev.data.name) {
         case '2d':
-          this.designer.scene3d.to2d();
+          me.designer.scene3d.to2d()
           break
         case '3d':
-          this.designer.scene3d.to3d();
+          me.designer.scene3d.to3d()
           break
         case 'fv':
-          this.designer.scene3d.toFv();
+          me.designer.scene3d.toFv()
           break
       }
     })

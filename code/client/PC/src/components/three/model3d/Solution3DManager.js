@@ -1,9 +1,9 @@
 import {
-  EventDispatcher,
-  Scene
+  EventDispatcher
 } from 'three'
 import Part3dCache from './Part3dCache'
 import Solution3D from './Solution3D'
+import TYPES from '../types'
 
 export default class Solution3DManager extends EventDispatcher {
   constructor(solutionManager, scene3D) {
@@ -16,129 +16,82 @@ export default class Solution3DManager extends EventDispatcher {
     this.caches = {};
   }
   init() {
-    this.solutionManager.addEventListener('solution-add', (ev) => {
-      this.addSolution3d(ev.solution, ev.onprogress);
+    this.solutionManager.addEventListener(TYPES['solution-add'], ({ solution, onprogress }) => {
+      this.addSolution3d(solution, onprogress);
     });
-    this.solutionManager.addEventListener('solution-remove', (ev) => {
-      this.removeSolution3d(ev.solution);
+    this.solutionManager.addEventListener(TYPES['solution-remove'], ({ solution }) => {
+      this.removeSolution3d(solution);
     });
-    this.solutionManager.addEventListener('solution-edit', (ev) => {
-      this.editSolution3d(ev.solution);
+    this.solutionManager.addEventListener(TYPES['solution-edit'], ({ solution, url }) => {
+      this.editSolution3d(solution, url);
     });
-    this.solutionManager.addEventListener('solution-changed-active', (ev) => {
-      this.setActiveSolution3d(ev.activeSolution);
-    });
-
-    this.solutionManager.addEventListener('product-add', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
-      if (solution3d) {
-        solution3d.addProduct3d(ev.product, ev.onprogress);
-      }
-    });
-    this.solutionManager.addEventListener('product-remove', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
-      if (solution3d) {
-        solution3d.removeProduct3d(ev.product);
-      }
-    });
-    this.solutionManager.addEventListener('product-edit', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
-      if (solution3d) {
-        switch (ev.operate) {
-          case 'setPosition':
-            solution3d.setProductPosition(ev.product);
-            break;
-          case 'setScale':
-            solution3d.setProductScale(ev.product);
-            break;
-          case 'setAngle':
-            solution3d.setProductAngle(ev.product);
-            break;
-        }
-      }
-    });
-    this.solutionManager.addEventListener('product-changed-active', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
-      if (solution3d) {
-        solution3d.setActiveProduct3d(ev.activeProduct);
-      }
+    this.solutionManager.addEventListener(TYPES['solution-changed-active'], ({ activeSolution, oldActiveSolution }) => {
+      this.setActiveSolution3d(activeSolution, oldActiveSolution);
     });
 
-    this.solutionManager.addEventListener('part-add', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
+    this.solutionManager.addEventListener(TYPES['product-add'], ({ product, onprogress }) => {
+      var solution3d = this.getSolution3d(product.solution.getKey());
       if (solution3d) {
-        solution3d.addPart3d(ev.part, ev.onprogress);
+        solution3d.addProduct3d(product, onprogress);
       }
     });
-    this.solutionManager.addEventListener('part-remove', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
+    this.solutionManager.addEventListener(TYPES['product-remove'], ({ product }) => {
+      var solution3d = this.getSolution3d(product.solution.getKey());
       if (solution3d) {
-        solution3d.removePart3d(ev.part);
+        solution3d.removeProduct3d(product);
       }
     });
-    this.solutionManager.addEventListener('part-edit', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
+    this.solutionManager.addEventListener(TYPES['product-edit'], ({ product, url }) => {
+      var solution3d = this.getSolution3d(product.solution.getKey());
       if (solution3d) {
-        switch (ev.operate) {
-          case 'setPosition':
-            solution3d.setPartPosition(ev.part);
-            break;
-          case 'setScale':
-            solution3d.setPartScale(ev.part);
-            break;
-          case 'setMaterial':
-            solution3d.setPartMaterial(ev.part, ev.oldvalue);
-            break;
-          case 'setTextureDir':
-            solution3d.setTextureDir(ev.part);
-            break;
-          case 'setAngle':
-            solution3d.setPartAngle(ev.part);
-            break;
-          case 'setPath':
-          case 'setHeight':
-          case 'setWidth':
-            solution3d.setPartParms(ev.part);
-            break;
-          case 'setOpenType':
-            solution3d.setPartOpenType(ev.part);
-            break;
-          case 'setBoardType':
-            solution3d.setPartBoardType(ev.part);
-            break;
-        }
-        const baseModel = ev.part.getModel().baseModel;
-        // if(baseModel&&baseModel.oldPath){
-        solution3d.manager3d.dispatchEvent({
-          type: 'part-edit',
-          part: ev.part,
-          operate: ev.operate,
-          oldPath: baseModel.oldPath
-        });
-        // }
+        solution3d.setProduct3dAtt(product, url);
       }
     });
-    this.solutionManager.addEventListener('part-move', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
+    this.solutionManager.addEventListener(TYPES['product-changed-active'], ({ activeProduct }) => {
+      var solution3d = this.getSolution3d(activeProduct.solution.getKey());
       if (solution3d) {
-        solution3d.movePart3d(ev.part, ev.sender, ev.receiver);
+        solution3d.setActiveProduct3d(activeProduct);
       }
     });
-    this.solutionManager.addEventListener('part-changed-active', (ev) => {
-      var solution3d = this.getSolution3d(ev.solution.getKey());
+    this.solutionManager.addEventListener(TYPES['part-add'], ({ part, onprogress }) => {
+      var solution3d = this.getSolution3d(part.product.solution.getKey());
       if (solution3d) {
-        solution3d.setActivePart3d(ev.activePart);
+        solution3d.addPart3d(part, onprogress);
+      }
+    });
+    this.solutionManager.addEventListener(TYPES['part-remove'], ({ part }) => {
+      var solution3d = this.getSolution3d(part.product.solution.getKey());
+      if (solution3d) {
+        solution3d.removePart3d(part);
+      }
+    });
+    this.solutionManager.addEventListener(TYPES['part-edit'], ({ part, url }) => {
+      var solution3d = this.getSolution3d(part.product.solution.getKey());
+      if (solution3d) {
+        solution3d.setPart3dAtt(part, url);
+      }
+    });
+    this.solutionManager.addEventListener(TYPES['part-move'], ({ part, sender, receiver }) => {
+      var solution3d = this.getSolution3d(part.product.solution.getKey());
+      if (solution3d) {
+        solution3d.movePart3d(part, sender, receiver);
+      }
+    });
+    this.solutionManager.addEventListener(TYPES['part-changed-active'], ({ activePart, oldActivePart }) => {
+      var solution3d = this.getSolution3d(activePart.product.solution.getKey());
+      if (solution3d) {
+        solution3d.setActivePart3d(activePart);
       }
     });
 
-    this.addEventListener('part-add', (ev) => {
-      var model = ev.part.getModel();
+    this.addEventListener(TYPES['part-add'], ({ part, part3d }) => {
+      var model = part.getModel();
       var part3dCache = this.caches[model.parkId];
       if (!part3dCache) {
         part3dCache = new Part3dCache(model.parkId);
         this.caches[model.parkId] = part3dCache;
         if (model.cache) {
-          part3dCache.init(ev.part3d, function(state) {
+          part3dCache.init(part3d, (state) => {
             if (!state) {
               delete this.caches[model.parkId];
             }
@@ -147,9 +100,9 @@ export default class Solution3DManager extends EventDispatcher {
       }
       part3dCache.increase();
     });
-    this.addEventListener('part-remove', (ev) => {
-      var model = ev.part.getModel();
-      var part3dCache = this.caches[model.name];
+    this.addEventListener(TYPES['part-remove'], ({ part }) => {
+      var model = part.getModel();
+      var part3dCache = this.caches[model.parkId];
       if (part3dCache) {
         part3dCache.decrease();
       }
@@ -174,7 +127,7 @@ export default class Solution3DManager extends EventDispatcher {
       this._solution3dCount++;
       solution3d.init(solution, onprogress);
       this.dispatchEvent({
-        type: 'solution-add',
+        type: TYPES['solution-add'],
         solution: solution,
         solution3d: solution3d,
         rootGroup: solution3d.getSolutionGroup()
@@ -197,7 +150,7 @@ export default class Solution3DManager extends EventDispatcher {
           this.removeCtrl();
         }
         this.dispatchEvent({
-          type: 'solution-remove',
+          type: TYPES['solution-remove'],
           solution: solution,
           solution3d: solution3d,
           solutionGroup: solutionGroup

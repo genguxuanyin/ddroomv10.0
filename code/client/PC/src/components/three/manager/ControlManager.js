@@ -228,15 +228,11 @@ class Navigator {
       this.connect = () => {
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
-        // this.scene3d.addEventListener('keydown', onKeyDown);
-        // this.scene3d.addEventListener('keyup', onKeyUp);
       };
 
       this.disconnect = () => {
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('keyup', onKeyUp);
-        // this.scene3d.removeEventListener('keydown', onKeyDown);
-        // this.scene3d.removeEventListener('keyup', onKeyUp);
       };
     }
   }

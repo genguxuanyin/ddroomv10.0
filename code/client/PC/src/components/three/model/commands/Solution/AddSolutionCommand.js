@@ -1,5 +1,5 @@
 import Command from "../Command";
-
+import TYPES from '../../../types'
 export default class AddSolutionCommand extends Command {
   constructor(manager, solution, onprogress) {
     super(manager);
@@ -10,16 +10,16 @@ export default class AddSolutionCommand extends Command {
   }
   execute() {
     this.manager.addSolution(this.solution, this.onprogress, true, (solution) => {
-      var eventObj = { type: 'solution-add', solution: solution, onprogress: this.onprogress };
+      var eventObj = { type: TYPES['solution-add'], solution: solution, onprogress: this.onprogress };
       this.manager.dispatchEvent(eventObj);
-      this.manager.dispatchEvent({ type: 'solution-changed', solution: solution, operate: eventObj });
+      this.manager.dispatchEvent({ type: TYPES['solution-changed'], solution: solution, operate: eventObj });
     });
   }
   undo() {
     this.manager.removeSolution(this.solution.getKey(), true, (solution) => {
-      var eventObj = { type: 'solution-remove', solution: solution };
+      var eventObj = { type: TYPES['solution-remove'], solution: solution };
       this.manager.dispatchEvent(eventObj);
-      this.manager.dispatchEvent({ type: 'solution-changed', solution: solution, operate: eventObj });
+      this.manager.dispatchEvent({ type: TYPES['solution-changed'], solution: solution, operate: eventObj });
     });
   }
 }

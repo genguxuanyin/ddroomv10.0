@@ -1,9 +1,12 @@
 import Part3D from './Part3D'
-import ThreeUtil from '../util/ThreeUtil'
+import {
+  createModel
+} from '../util'
 
 export default class Product3D {
   constructor(solution3d, product) {
     this.solution3d = solution3d;
+    this.manager3d = solution3d.manager3d;
     this.product = product;
     this.parts3d = {};
     this.state = 'none';
@@ -13,16 +16,16 @@ export default class Product3D {
     this.product = product || this.product;
     var me = this;
     var progress = 0;
-			var total = this.product.getPartCount(true) + 1;
-    this.solution3d.manager3d.dispatchEvent({
+    var total = this.product.getPartCount(true) + 1;
+    this.manager3d.dispatchEvent({
       type: 'initProduct3d',
       total: total,
       progress: progress,
       product3d: this
     });
-    // console.debug('initProduct3d('+this.getName()+'['+this.getKey()+']) start...');
-    console.time('initProduct3d(' + this.getName() + '[' + this.getKey() + '])');
-    var doProgress = function() {
+    // console.debug('initProduct3d('+this.getAtt('name')+'['+this.getKey()+']) start...');
+    console.time('initProduct3d(' + this.getAtt('name') + '[' + this.getKey() + '])');
+    var doProgress = () => {
       progress++;
       if (onprogress) {
         onprogress({
@@ -32,7 +35,7 @@ export default class Product3D {
           product3d: me
         });
       }
-      me.solution3d.manager3d.dispatchEvent({
+      this.manager3d.dispatchEvent({
         type: 'initProduct3d',
         total: total,
         progress: progress,
@@ -40,34 +43,31 @@ export default class Product3D {
       });
       if (progress >= total) {
         me.state = 'inited';
-        // console.debug('initProduct3d('+me.getName()+'['+me.getKey()+']) finish.');
-        console.timeEnd('initProduct3d(' + me.getName() + '[' + me.getKey() + '])');
+        console.timeEnd('initProduct3d(' + me.getAtt('name') + '[' + me.getKey() + '])');
       }
     };
     this.state = 'initing';
-    ThreeUtil.createModel(this.product.getModel(),
-      function(model, func) { // checkCache
-        return me.solution3d.manager3d.checkCache(model, func);
+    createModel(this.product.getModel(),
+      (model, func) => { // checkCache
+        return this.manager3d.checkCache(model, func);
       },
-      function(model, result) { // onload
+      (model, result) => { // onload
         let curPart, part3d;
         switch (result.type) {
           case 'product':
-            me.solution3d.solutionGroup.add(result.group);
-            me.productGroup = result.group;
+            this.solution3d.solutionGroup.add(result.group);
+            this.productGroup = result.group;
             doProgress();
             break;
           case 'part':
-            part3d = me.getPart3dFromGroup(result.group);
+            part3d = this.getPart3dFromGroup(result.group);
             if (!part3d) {
-              curPart = me.getPartFromGroup(result.group);
+              curPart = this.getPartFromGroup(result.group);
               if (curPart) {
-                // console.debug('initPart3d('+model.name+'['+model.key+']) start...');
                 console.time('initPart3d(' + model.name + '[' + model.key + '])');
-                part3d = new Part3D(me, curPart);
+                part3d = new Part3D(this, curPart);
                 part3d._setPartGroup(result.group, result.hasMesh);
                 if (result.hasMesh) {
-                  // console.debug('initPart3d('+model.name+'['+model.key+']) finish.');
                   console.timeEnd('initPart3d(' + model.name + '[' + model.key + '])');
                   doProgress();
                 }
@@ -75,11 +75,9 @@ export default class Product3D {
             }
             break;
           case 'partMesh':
-            // console.debug('initPart3d('+model.name+'['+model.key+']) finish.');
-            // console.timeEnd('initPart3d('+model.name+'['+model.key+'])');
-            part3d = me.getPart3dFromGroup(result.group);
+            part3d = this.getPart3dFromGroup(result.group);
             if (part3d) {
-              me.solution3d.manager3d.dispatchEvent({
+              this.manager3d.dispatchEvent({
                 type: 'addPartMesh',
                 part: part3d.getPart(),
                 part3d: part3d,
@@ -95,26 +93,25 @@ export default class Product3D {
             }
             break;
           case 'material':
-            // console.debug('initPart3d('+model.name+'['+model.key+']) finish.');
-            curPart = me.getPart(model.key);
+            curPart = this.getPart(model.key);
             if (curPart) {
-              part3d = new Part3D(me, curPart);
+              part3d = new Part3D(this, curPart);
               part3d._setPartGroup(result.group, result.hasMesh);
               doProgress();
             }
-            part3d = me.getPart3dFromGroup(result.parentGroup);
+            part3d = this.getPart3dFromGroup(result.parentGroup);
             if (part3d) {
               part3d.updateMaterials(result.materials, result.materialConfigs, model);
             }
             break;
         }
       },
-      function(model, result) { // onprogress
+      (model, result) => { // onprogress
         if (result.xhr.lengthComputable) {
           var percent = result.xhr.loaded / result.xhr.total * 100;
           var v = Math.round(percent, 2);
           if (result.type === 'part') {
-            var part3d = me.getPart3d(model.key);
+            var part3d = this.getPart3d(model.key);
             if (onprogress) {
               onprogress({
                 type: 'loadPartProgress',
@@ -122,10 +119,8 @@ export default class Product3D {
                 xhr: result.xhr,
                 percent: v
               });
-            } else {
-              // console.debug( 'loadPartProgress('+model.name+'['+model.key+']): '+ v + '% downloaded');
             }
-            me.solution3d.manager3d.dispatchEvent({
+            this.manager3d.dispatchEvent({
               type: 'loadPartProgress',
               part3d: part3d,
               xhr: result.xhr,
@@ -135,47 +130,45 @@ export default class Product3D {
             if (onprogress) {
               onprogress({
                 type: 'loadProductProgress',
-                products3d: me,
+                products3d: this,
                 xhr: result.xhr,
                 percent: v
               });
-            } else {
-              // console.debug( 'loadProductProgress('+model.name+'['+model.key+']): '+ v + '% downloaded');
             }
-            me.solution3d.manager3d.dispatchEvent({
+            this.manager3d.dispatchEvent({
               type: 'loadProductProgress',
-              products3d: me,
+              products3d: this,
               xhr: result.xhr,
               percent: v
             });
           }
         }
       },
-      function(model, result) { // onerror
-        me.state = 'error';
+      (model, result) => { // onerror
+        this.state = 'error';
         if (result.type === 'part') {
           console.error('loadPartError(' + model.name + '[' + model.key + ']).');
-          var part3d = me.getPart3d(model.key);
+          var part3d = this.getPart3d(model.key);
           part3d.dispatchEvent({
             type: 'loadError',
             part3d: part3d,
             xhr: result.xhr
           });
-          me.solution3d.manager3d.dispatchEvent({
+          this.manager3d.dispatchEvent({
             type: 'loadPartError',
             part3d: part3d,
             xhr: result.xhr
           });
         } else if (result.type === 'product') {
           console.error('loadProductError(' + model.name + '[' + model.key + ']).');
-          me.dispatchEvent({
+          this.dispatchEvent({
             type: 'loadError',
-            products3d: me,
+            products3d: this,
             xhr: result.xhr
           });
-          me.solution3d.manager3d.dispatchEvent({
+          this.manager3d.dispatchEvent({
             type: 'loadProductError',
-            products3d: me,
+            products3d: this,
             xhr: result.xhr
           });
         }
@@ -186,11 +179,8 @@ export default class Product3D {
     //
     this.state = 'uninited';
   }
-  getProduct3dManager() {
-    return this.getSolution3dManager();
-  }
-  getSolution3dManager() {
-    return this.solution3d.manager;
+  getSolution3DManager() {
+    return this.manager3d;
   }
   getSolution3d() {
     return this.solution3d;
@@ -207,11 +197,8 @@ export default class Product3D {
   getKey() {
     return this.product.getKey();
   }
-  getName() {
-    return this.product.getName();
-  }
-  getType() {
-    return this.product.getType();
+  getAtt(url, isClone = false, _default = '') {
+    this.product.getAtt(url, isClone, _default);
   }
   getProduct() {
     return this.product;
@@ -267,16 +254,22 @@ export default class Product3D {
     return part3d;
   }
   getPartGroupArray() {
-    var objs = [];
-    for (var name in this.parts3d) {
-      objs.push(this.parts3d[name].getPartGroup());
+    var partGroupArray = [];
+    for (var key in this.parts3d) {
+      partGroupArray.push(this.parts3d[key].getPartGroup());
     }
-    return objs;
+    return partGroupArray;
   }
   getProperty(key) {
     return this.properties[key];
   }
   setProperty(key, value) {
     this.properties[key] = value;
+  }
+  removeProperty(key) {
+    delete this.properties[key];
+  }
+  clearProperty() {
+    this.properties = {};
   }
 }

@@ -14,6 +14,8 @@ import EnvManager from './manager/EnvManager'
 import LightManager from './manager/LightManager'
 import RendererManager from './manager/RendererManager'
 import ControlManager from './manager/ControlManager'
+import Stats from 'three/examples/jsm/libs/stats.module';
+import TYPES from './types'
 export default class Scene3D extends EventDispatcher {
   constructor() {
     const rootGroup = new Group();
@@ -60,22 +62,15 @@ export default class Scene3D extends EventDispatcher {
     this.controlManager = new ControlManager(this, this.ctrlGroup);
     this.controlManager.init();
 
-    this.rendererManager.addEventListener('mouseout', (ev) => {
-      this.dispatchEvent(ev);
-    });
-    this.rendererManager.addEventListener('mouseleave', (ev) => {
+    this.rendererManager.addEventListener(TYPES['mousedown'], (ev) => {
       this._findObject(ev);
       this.dispatchEvent(ev);
     });
-    this.rendererManager.addEventListener('mousedown', (ev) => {
+    this.rendererManager.addEventListener(TYPES['mouseup'], (ev) => {
       this._findObject(ev);
       this.dispatchEvent(ev);
     });
-    this.rendererManager.addEventListener('mouseup', (ev) => {
-      this._findObject(ev);
-      this.dispatchEvent(ev);
-    });
-    this.rendererManager.addEventListener('mousemove', (ev) => {
+    this.rendererManager.addEventListener(TYPES['mousemove'], (ev) => {
       if (this.canFindObj) {
         this._findObject(ev);
       }
@@ -85,10 +80,17 @@ export default class Scene3D extends EventDispatcher {
     this.renderer3d = this.rendererManager.getDefRenderer3D();
     this.size = this.renderer3d.getSize();
     this.ctrlScene = this.controlManager.ctrlScene;
-    this.dispatchEvent({ type: 'scene3dInit', scene3d: this });
+
+    if (typeof x === "undefined") {
+      this.stats = new Stats();
+      this.renderer3d.container.appendChild(this.stats.dom);
+    }
+
+    this.dispatchEvent(TYPES['scene3d-init'], { scene3d: this });
     this.start();
   }
   refresh() {
+    this.stats && this.stats.update();
     this.update();
     this.rendererManager.render();
   }
@@ -167,7 +169,7 @@ export default class Scene3D extends EventDispatcher {
       raycaster.setFromCamera(mouse, this.renderer3d.getCamera());
       var intersects = raycaster.intersectObjects([this.rootGroup], true);
       if (intersects.length > 0) {
-        this.dispatchEvent({ type: 'findObject', event: oEvent, intersect: intersects[0], intersects: intersects, renderer3d: ev.renderer3d });
+        this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: intersects[0], intersects: intersects, renderer3d: ev.renderer3d });
       }
     }
   }

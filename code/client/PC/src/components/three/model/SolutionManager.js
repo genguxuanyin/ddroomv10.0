@@ -10,6 +10,7 @@ import AddSolutionCommand from './commands/Solution/AddSolutionCommand'
 import RemoveSolutionCommand from './commands/Solution/RemoveSolutionCommand'
 import Solution from './Solution'
 import History from './History'
+import TYPES from '../types'
 
 export default class SolutionManager extends EventDispatcher {
   constructor() {
@@ -23,7 +24,7 @@ export default class SolutionManager extends EventDispatcher {
   init(model, onprogress) {
     if (model && Array.isArray(model.solutions)) {
       model.solutions.forEach(solutionModel => {
-        if (solutionModel.enabled) {
+        if (!solutionModel.disabled) {
           this.buildSolution(solutionModel, onprogress);
         }
       });
@@ -119,7 +120,7 @@ export default class SolutionManager extends EventDispatcher {
         this.oldActiveSolution.setActive(false);
       }
       this.activeSolution = solution;
-      this.dispatchEvent({ type: 'solution-changed-active', oldSolution: this.oldActiveSolution, activeSolution: this.activeSolution });
+      this.dispatchEvent({ type: TYPES['solution-changed-active'], activeSolution: this.activeSolution, oldActiveSolution: this.oldActiveSolution });
       return true;
     }
     return false;
@@ -131,14 +132,14 @@ export default class SolutionManager extends EventDispatcher {
     this.clearHistory();
   }
   undo() {
-    this.dispatchEvent({ type: 'before-undo', solution: this });
+    this.dispatchEvent({ type: TYPES['before-undo'], solutionManager: this });
     this.operate.undo();
-    this.dispatchEvent({ type: 'after-undo', solution: this });
+    this.dispatchEvent({ type: TYPES['after-undo'], solutionManager: this });
   }
   redo() {
-    this.dispatchEvent({ type: 'before-redo', solution: this });
+    this.dispatchEvent({ type: TYPES['before-redo'], solutionManager: this });
     this.operate.redo();
-    this.dispatchEvent({ type: 'after-redo', solution: this });
+    this.dispatchEvent({ type: TYPES['after-redo'], solutionManager: this });
   }
   clearHistory() {
     this.operate.clear();

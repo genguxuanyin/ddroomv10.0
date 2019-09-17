@@ -5,7 +5,7 @@ import {
   Group,
   ReinhardToneMapping
 } from 'three'
-
+import TYPES from '../types';
 const CONFIGS = [
   {
     name: 'defRender',
@@ -74,21 +74,14 @@ export class Renderer3D extends EventDispatcher {
     this.renderer.shadowMapSoft = this.config.shadowMap.soft;
 
     this.container.appendChild(this.renderer.domElement);
-
-    this.container.addEventListener('mouseout', (e) => {
-      this.manager.dispatchEvent({ type: 'mouseout', event: e || event, renderer3d: this });
-    });
-    this.container.addEventListener('mouseleave', (e) => {
-      this.manager.dispatchEvent({ type: 'mouseleave', event: e || event, renderer3d: this });
-    });
     this.container.addEventListener('mousedown', (e) => {
-      this.manager.dispatchEvent({ type: 'mousedown', event: e || event, renderer3d: this });
+      this.manager.dispatchEvent({ type: TYPES['mousedown'], event: e || event, renderer3d: this });
     });
     this.container.addEventListener('mouseup', (e) => {
-      this.manager.dispatchEvent({ type: 'mouseup', event: e || event, renderer3d: this });
+      this.manager.dispatchEvent({ type: TYPES['mouseup'], event: e || event, renderer3d: this });
     });
     this.container.addEventListener('mousemove', (e) => {
-      this.manager.dispatchEvent({ type: 'mousemove', event: e || event, renderer3d: this });
+      this.manager.dispatchEvent({ type: TYPES['mousemove'], event: e || event, renderer3d: this });
     });
     window.addEventListener('resize', (e) => {
       if (this.config.id) {
@@ -116,13 +109,16 @@ export class Renderer3D extends EventDispatcher {
   getCamera() {
     return this.camera;
   }
+  getContainer() {
+    return this.container;
+  }
   setCamera(name) {
     var camera = this.scene3d.cameraManager.getCamera(name);
     if (camera !== this.camera) {
       this.oldCameraName = this.cameraName;
       this.cameraName = name;
       this.camera = camera;
-      this.manager.dispatchEvent({ type: 'cameraChanged', renderer3d: this });
+      this.manager.dispatchEvent({ type: TYPES['camera-changed'], renderer3d: this });
     }
   }
   resetCamera(isFirst) {

@@ -151,7 +151,7 @@ export default class Product {
         }
         if (Array.isArray(model.parts) && model.parts.length > 0) {
           model.parts.forEach(p => {
-            if (p.enabled) {
+            if (!p.disabled) {
               const subPart = new Part(this, part);
               subPart.init(p);
               part.addPart(subPart, onprogress, true, true, true);
@@ -170,7 +170,7 @@ export default class Product {
         const model = part.getModel();
         if (isSelf) {
           if (Array.isArray(model.parts) && model.parts.length > 0) {
-            model.parts.filter(p => p.enabled).forEach(p => part.removePart(p.key, true, true, true))
+            model.parts.filter(p => !p.disabled).forEach(p => part.removePart(p.key, true, true, true))
           }
         }
         delete this._parts[key];
@@ -211,12 +211,6 @@ export default class Product {
   redo() {
     this.solution.redo();
   }
-  beginGroup() {
-    this.solution.beginGroup();
-  }
-  endGroup() {
-    this.solution.endGroup();
-  }
   toString() {
     return jsonToStr(this.getModel());
   }
@@ -226,7 +220,7 @@ export default class Product {
       const model = this._model;
       if (model.parts && model.parts.length > 0) {
         model.parts.forEach(p => {
-          if (p.enabled) {
+          if (!p.disabled) {
             const subPart = new Part(this, null);
             subPart.init(p);
             this.addPart(subPart, onprogress, true, true, true);
@@ -241,7 +235,7 @@ export default class Product {
       this.state = 'uniniting';
       const model = this.getModel();
       if (Array.isArray(model.parts) && model.parts.length > 0) {
-        model.parts.filter(p => p.enabled).forEach(p => this.removePart(p.key, true, true, true));
+        model.parts.filter(p => !p.disabled).forEach(p => this.removePart(p.key, true, true, true));
       }
       this.state = 'uninited';
     }
