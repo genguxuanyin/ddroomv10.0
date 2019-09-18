@@ -83,7 +83,8 @@ export default class Scene3D extends EventDispatcher {
 
     if (typeof x === "undefined") {
       this.stats = new Stats();
-      this.renderer3d.container.appendChild(this.stats.dom);
+      var container = this.renderer3d.getContainer()
+      container && container.appendChild(this.stats.dom);
     }
 
     this.dispatchEvent(TYPES['scene3d-init'], { scene3d: this });
