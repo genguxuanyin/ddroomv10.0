@@ -1,4 +1,5 @@
 import { Object3D, Group, Material, Texture } from 'three'
+import TYPES from '../types'
 
 if (!Group.prototype.track && !Group.prototype.free) {
   Object.defineProperty(Group.prototype, "track", {
@@ -58,7 +59,17 @@ if (!Group.prototype.track && !Group.prototype.free) {
         if (r instanceof Object3D && r.parent) {
           r.parent.remove(r);
         }
-        if (r.dispose) {
+        if (r instanceof Material && r.refObj) {
+          r.dispatchEvent({ type: TYPES['material-remove'] });
+          if (r.refObj.count <= 0) {
+            r.dispose();
+          }
+        } else if (r instanceof Texture && r.refObj) {
+          r.dispatchEvent({ type: TYPES['texture-remove'] });
+          if (r.refObj.count <= 0) {
+            r.dispose();
+          }
+        } else if (r.dispose) {
           r.dispose();
         }
       }

@@ -3,17 +3,19 @@
     <span class="title">{{ item.title }}</span>
     <div v-if="Array.isArray(item.children) && item.children.length" class="container">
       <MenuItem
-        v-for="(cItem, index) in item.children"
-        :key="index"
+        v-for="(cItem, ci) in item.children"
+        :key="ci"
         class="item column big padding-top-6"
+        :class="{'active':cItem.isActive}"
         :icon="cItem.icon"
         :title="cItem.title"
+        @click="$emit('click',{i:index,ci})"
       />
     </div>
   </div>
 </template>
 <script>
-import MenuItem from "@/components/menuItem/MenuItem";
+import MenuItem from '@/components/menuItem/MenuItem'
 export default {
   components: {
     MenuItem
@@ -22,14 +24,18 @@ export default {
     item: {
       type: Object,
       default() {
-        return {};
+        return {}
       }
+    },
+    index: {
+      type: Number,
+      default: 0
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
-@import "~@/styles/variables.scss";
+@import '~@/styles/variables.scss';
 .houseTypeItem {
   display: flex;
   flex-direction: column;
@@ -50,6 +56,11 @@ export default {
       width: 33%;
       height: 60px;
       cursor: pointer;
+      &.active {
+        border: 1px solid $sub-sidebar-active-bg-color;
+        background-color: #ffffff;
+        box-shadow: $light-box-shadow;
+      }
       &:hover {
         background-color: $sub-sidebar-hover-bg-color;
       }

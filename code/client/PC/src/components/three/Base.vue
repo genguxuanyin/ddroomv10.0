@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import Designer from './Designer'
+import designer from './Designer'
 import ee from '../../utils/event'
 import TYPES from './types'
 const suportWebGL = (() => {
@@ -33,7 +33,7 @@ const suportWebGL = (() => {
 export default {
   data() {
     return {
-      designer: new Designer(),
+      designer: designer,
       suportWebGL
     }
   },

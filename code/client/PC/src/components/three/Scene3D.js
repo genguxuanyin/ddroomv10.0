@@ -4,7 +4,8 @@ import {
   Scene,
   Group,
   Vector2,
-  Raycaster
+  Raycaster,
+  AxesHelper
 } from 'three'
 const CONFIG = {
 
@@ -14,6 +15,7 @@ import EnvManager from './manager/EnvManager'
 import LightManager from './manager/LightManager'
 import RendererManager from './manager/RendererManager'
 import ControlManager from './manager/ControlManager'
+import MaterialManager from './manager/MaterialManager'
 import Stats from 'three/examples/jsm/libs/stats.module';
 import TYPES from './types'
 export default class Scene3D extends EventDispatcher {
@@ -47,6 +49,9 @@ export default class Scene3D extends EventDispatcher {
     this.scene.add(this.tempGroup);
     this.scene.add(this.ctrlGroup);
 
+    var axesHelper = new AxesHelper(1000);
+    this.scene.add(axesHelper);
+
     this.cameraManager = new CameraManager(this);
     this.cameraManager.init();
 
@@ -61,6 +66,9 @@ export default class Scene3D extends EventDispatcher {
 
     this.controlManager = new ControlManager(this, this.ctrlGroup);
     this.controlManager.init();
+
+    this.materialManager = new MaterialManager(this);
+    this.materialManager.init();
 
     this.rendererManager.addEventListener(TYPES['mousedown'], (ev) => {
       this._findObject(ev);
@@ -170,6 +178,7 @@ export default class Scene3D extends EventDispatcher {
       raycaster.setFromCamera(mouse, this.renderer3d.getCamera());
       var intersects = raycaster.intersectObjects([this.rootGroup], true);
       if (intersects.length > 0) {
+        console.log(intersects[0].face)
         this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: intersects[0], intersects: intersects, renderer3d: ev.renderer3d });
       }
     }

@@ -1,19 +1,19 @@
-export default class Part3dCache {
+export default class Product3DCache {
   constructor(name) {
     this.name = name;
     this.state = 0;
     this.number = 0;
   }
-  init(part3d, func) {
-    this.part3d = part3d;
-    this.group = part3d.getPartGroup();
-    this.model = part3d.getPart().cloneModel();
+  init(product3d, func) {
+    this.product3d = product3d;
+    this.group = product3d.getProductGroup();
+    this.model = product3d.getProduct().cloneModel();
     this.state = 1;
     var me = this;
-    this.part3d.isReady(function(state) {
+    this.product3d.isReady(function(state) {
       if (state) {
         me.state = 2;
-        me.group = me.part3d.getPartGroup().clone();
+        me.group = me.product3d.getProductGroup().clone();
         me.cleanGroup(me.group);
         if (func) {
           func(true);
@@ -24,7 +24,7 @@ export default class Part3dCache {
           func(false);
         }
       }
-      delete me.part3d;
+      delete me.product3d;
     });
   }
   getName() {
@@ -41,18 +41,18 @@ export default class Part3dCache {
   }
   getGroup(func) {
     if (this.state === 1) {
-      var part3d = this.part3d;
-      if (part3d) {
+      var product3d = this.product3d;
+      if (product3d) {
         var me = this;
-        part3d.isReady(function(state) {
+        product3d.isReady(function(state) {
           if (state) {
             me.state = 2;
-            me.group = part3d.getPartGroup().clone();
+            me.group = product3d.getProductGroup().clone();
             me.cleanGroup(me.group);
           } else {
             me.state = 3;
           }
-          delete me.part3d;
+          delete me.product3d;
           if (func) {
             func(me.group);
           }

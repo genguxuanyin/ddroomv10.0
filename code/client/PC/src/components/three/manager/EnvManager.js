@@ -33,8 +33,8 @@ const CONFIGS = [
       mieCoefficient: 0.005,
       mieDirectionalG: 0.8,
       luminance: 1,
-      inclination: 0.15, // elevation / inclination
-      azimuth: 0.25, // Facing front,
+      inclination: -0.25, // elevation / inclination
+      azimuth: 0.32, // Facing front,
       distance: 40000,
       sun: !true
     },
@@ -111,7 +111,7 @@ export default class EnvManager {
           new MeshPhongMaterial({ visible: v.matVisible })
         )
     }
-    if (v.name && !this.configs[v.name]) {
+    if (v.name && !this.envs[v.name]) {
       env.name = v.name;
       this.envs[v.name] = env;
       this.group.add(env);

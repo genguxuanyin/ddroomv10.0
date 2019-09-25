@@ -1,22 +1,20 @@
 export default {
   // SolutionManager
-  'part-add': 'part-add',
-  'part-remove': 'part-remove',
-  'part-edit': 'part-edit',
-  'part-move': 'part-move',
-  'part-changed-active': 'part-changed-active',
+  'solution-add': 'solution-add',
+  'solution-edit': 'solution-edit',
+  'solution-remove': 'solution-remove',
+  'solution-changed-active': 'solution-changed-active',
 
   'product-add': 'product-add',
   'product-remove': 'product-remove',
   'product-edit': 'product-edit',
+  'product-move': 'product-move',
   'product-changed-active': 'product-changed-active',
-  'product-changed': 'product-changed',
 
-  'solution-add': 'solution-add',
-  'solution-remove': 'solution-remove',
-  'solution-edit': 'solution-edit',
-  'solution-changed': 'solution-changed',
-  'solution-changed-active': 'solution-changed-active',
+  'product3d-add': 'product3d-add',
+  'product3d-remove': 'product3d-remove',
+  'solution3d-add': 'solution3d-add',
+  'solution3d-changed-active': 'solution3d-changed-active',
 
   'before-undo': 'before-undo',
   'after-undo': 'after-undo',
@@ -42,5 +40,9 @@ export default {
   // Part3d
   'mesh-add': 'mesh-add',
   'load-error': 'load-error',
-  'remove': 'remove'
+  'remove': 'remove',
+
+  //
+  'material-remove': 'material-remove',
+  'texture-remove': 'texture-remove'
 }

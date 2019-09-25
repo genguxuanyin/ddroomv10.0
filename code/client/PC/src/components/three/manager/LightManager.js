@@ -8,19 +8,25 @@ import {
 
 const CONFIGS = [
   {
+    name: "al",
+    type: "AmbientLight",
+    color: 0xffffff,
+    intensity: 0.5
+  },
+  {
     name: "hl",
     type: "HemisphereLight",
+    skyColor: 0xfbfbff,
+    groundColor: 0xfffffb,
     position: { x: 0, y: 1, z: 0 },
-    skyColor: 0xaaaaff,
-    groundColor: 0x806060,
     intensity: 0.2
   },
   {
     name: "dl",
     type: "DirectionalLight",
-    position: { x: 1, y: 1, z: 1 },
+    position: { x: 382, y: 1000, z: 618 },
     color: 0xffffff,
-    intensity: 0.8
+    intensity: 0.5
   }
 ];
 
@@ -58,7 +64,7 @@ export default class LightManager {
         light = new HemisphereLight(config.skyColor, config.groundColor, config.intensity)
         break;
     }
-    if (config.name && !this.configs[config.name]) {
+    if (config.name && !this.lights[config.name]) {
       light.name = config.name;
       this.lights[config.name] = light;
       this.setLight(config.name, config);

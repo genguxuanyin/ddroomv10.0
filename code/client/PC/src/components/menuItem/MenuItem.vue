@@ -1,28 +1,29 @@
 <template>
-  <div class="menuItem">
+  <div class="menuItem" @click="$emit('click')">
     <Item :icon="icon" :title="title" />
   </div>
 </template>
 <script>
-import Item from "./Item";
+import Item from './Item'
 export default {
-  name: "MenuItem",
+  name: 'MenuItem',
   components: {
     Item
   },
   props: {
     icon: {
       type: String,
-      default: ""
+      default: ''
     },
     title: {
       type: String,
-      default: ""
+      default: ''
     }
   }
-};
+}
 </script>
 <style lang="scss" scoped>
+@import '~@/styles/variables.scss';
 .menuItem {
   width: 100%;
   height: 100%;

@@ -1,4 +1,4 @@
-import Command from "../Command";
+import Command from '../Command'
 import TYPES from '../../../types'
 export default class EditProductCommand extends Command {
   constructor(manager, product, param) {
@@ -13,14 +13,12 @@ export default class EditProductCommand extends Command {
     this.product.setAtt(this.param.url, this.param.value, true);
     var eventObj = { type: TYPES['product-edit'], product: this.product, url: this.param.url };
     this.manager.dispatchEvent(eventObj);
-    this.manager.dispatchEvent({ type: TYPES['product-changed'], product: this.product, operate: eventObj });
-    this.manager.dispatchEvent({ type: TYPES['solution-changed'], solution: this.product.solution, operate: eventObj });
+    this.manager.dispatchEvent({ type: TYPES['solution-changed'], operate: eventObj });
   }
   undo() {
     this.product.setAtt(this.param.url, this.oldValue, true);
     var eventObj = { type: TYPES['product-edit'], product: this.product, url: this.param.url };
     this.manager.dispatchEvent(eventObj);
-    this.manager.dispatchEvent({ type: TYPES['product-changed'], product: this.product, operate: eventObj });
-    this.manager.dispatchEvent({ type: TYPES['solution-changed'], solution: this.product.solution, operate: eventObj });
+    this.manager.dispatchEvent({ type: TYPES['solution-changed'], operate: eventObj });
   }
 }

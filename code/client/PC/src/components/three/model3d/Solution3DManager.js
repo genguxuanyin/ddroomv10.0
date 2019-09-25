@@ -1,9 +1,12 @@
 import {
   EventDispatcher
 } from 'three'
-import Part3dCache from './Part3dCache'
+import Product3DCache from './Product3DCache'
 import Solution3D from './Solution3D'
 import TYPES from '../types'
+import {
+  fromStrToArray
+} from '../util'
 
 export default class Solution3DManager extends EventDispatcher {
   constructor(solutionManager, scene3D) {
@@ -26,85 +29,73 @@ export default class Solution3DManager extends EventDispatcher {
       this.editSolution3d(solution, url);
     });
     this.solutionManager.addEventListener(TYPES['solution-changed-active'], ({ activeSolution, oldActiveSolution }) => {
-      this.setActiveSolution3d(activeSolution, oldActiveSolution);
+      var solution3d = this.getSolution3d(activeSolution.getKey());
+      this.setActiveSolution3d(solution3d);
     });
 
     this.solutionManager.addEventListener(TYPES['product-add'], ({ product, onprogress }) => {
       var solution3d = this.getSolution3d(product.solution.getKey());
+      var parent = product.getParent();
       if (solution3d) {
-        solution3d.addProduct3d(product, onprogress);
+        if (parent.getClass('cl') === 'S') {
+          solution3d.buildProduct3d(product, onprogress);
+        } else {
+          var parent3d = solution3d.getProduct3dFromProduct(parent);
+          parent3d.buildProduct3d(product, onprogress);
+        }
       }
     });
     this.solutionManager.addEventListener(TYPES['product-remove'], ({ product }) => {
       var solution3d = this.getSolution3d(product.solution.getKey());
-      if (solution3d) {
-        solution3d.removeProduct3d(product);
-      }
+      var product3d = solution3d.getProduct3dFromProduct(product);
+      product3d && product3d.remove();
     });
     this.solutionManager.addEventListener(TYPES['product-edit'], ({ product, url }) => {
       var solution3d = this.getSolution3d(product.solution.getKey());
-      if (solution3d) {
-        solution3d.setProduct3dAtt(product, url);
+      var product3d = solution3d.getProduct3dFromProduct(product);
+      product3d && product3d.setProduct3dAtt(url);
+    });
+    this.solutionManager.addEventListener(TYPES['product-move'], ({ product, receiver }) => {
+      var solution3d = this.getSolution3d(product.solution.getKey());
+      var product3d = solution3d.getProduct3dFromProduct(product);
+      var receiver3d;
+      if (receiver.getClass() === 'S') {
+        receiver3d = solution3d;
+      } else {
+        receiver3d = solution3d.getProduct3dFromProduct(receiver);
       }
+      product3d.moveTo(receiver3d);
     });
     this.solutionManager.addEventListener(TYPES['product-changed-active'], ({ activeProduct }) => {
       var solution3d = this.getSolution3d(activeProduct.solution.getKey());
       if (solution3d) {
-        solution3d.setActiveProduct3d(activeProduct);
-      }
-    });
-    this.solutionManager.addEventListener(TYPES['part-add'], ({ part, onprogress }) => {
-      var solution3d = this.getSolution3d(part.product.solution.getKey());
-      if (solution3d) {
-        solution3d.addPart3d(part, onprogress);
-      }
-    });
-    this.solutionManager.addEventListener(TYPES['part-remove'], ({ part }) => {
-      var solution3d = this.getSolution3d(part.product.solution.getKey());
-      if (solution3d) {
-        solution3d.removePart3d(part);
-      }
-    });
-    this.solutionManager.addEventListener(TYPES['part-edit'], ({ part, url }) => {
-      var solution3d = this.getSolution3d(part.product.solution.getKey());
-      if (solution3d) {
-        solution3d.setPart3dAtt(part, url);
-      }
-    });
-    this.solutionManager.addEventListener(TYPES['part-move'], ({ part, sender, receiver }) => {
-      var solution3d = this.getSolution3d(part.product.solution.getKey());
-      if (solution3d) {
-        solution3d.movePart3d(part, sender, receiver);
-      }
-    });
-    this.solutionManager.addEventListener(TYPES['part-changed-active'], ({ activePart, oldActivePart }) => {
-      var solution3d = this.getSolution3d(activePart.product.solution.getKey());
-      if (solution3d) {
-        solution3d.setActivePart3d(activePart);
+        solution3d.setActiveProduct3d(solution3d.getProduct3dFromProduct(activeProduct));
       }
     });
 
-    this.addEventListener(TYPES['part-add'], ({ part, part3d }) => {
-      var model = part.getModel();
-      var part3dCache = this.caches[model.parkId];
-      if (!part3dCache) {
-        part3dCache = new Part3dCache(model.parkId);
-        this.caches[model.parkId] = part3dCache;
+    this.addEventListener(TYPES['product3d-add'], ({ product3d }) => {
+      var product = product3d.getProduct();
+      var model = product.getModel();
+      var product3DCache = this.caches[model.i];
+      if (!product3DCache) {
+        product3DCache = new Product3DCache(model.i);
+        this.caches[model.i] = product3DCache;
         if (model.cache) {
-          part3dCache.init(part3d, (state) => {
+          product3DCache.init(product3d, (state) => {
             if (!state) {
-              delete this.caches[model.parkId];
+              delete this.caches[model.i];
             }
           });
         }
       }
-      part3dCache.increase();
+      product3DCache.increase();
     });
-    this.addEventListener(TYPES['part-remove'], ({ part }) => {
-      var model = part.getModel();
-      var part3dCache = this.caches[model.parkId];
-      if (part3dCache) {
-        part3dCache.decrease();
+    this.addEventListener(TYPES['product3d-remove'], ({ product3d }) => {
+      var product = product3d.getProduct();
+      var model = product.getModel();
+      var product3DCache = this.caches[model.i];
+      if (product3DCache) {
+        product3DCache.decrease();
       }
     });
   }
@@ -127,41 +118,47 @@ export default class Solution3DManager extends EventDispatcher {
       this._solution3dCount++;
       solution3d.init(solution, onprogress);
       this.dispatchEvent({
-        type: TYPES['solution-add'],
+        type: TYPES['solution3d-add'],
         solution: solution,
         solution3d: solution3d,
-        rootGroup: solution3d.getSolutionGroup()
+        rootGroup: solution3d.getGroup()
       });
       return solution3d;
     }
   }
   removeSolution3d(solution) {
     if (solution) {
-      const key = solution.getKey();
-      const solution3d = this.getSolution3d(key);
+      const k = solution.getKey();
+      const solution3d = this.getSolution3d(k);
       if (solution3d) {
         solution3d.uninit();
-        delete this._solutions3d[key];
+        delete this._solutions3d[k];
         this._solution3dCount--;
-        const solutionGroup = solution3d.getSolutionGroup();
-        this.rootGroup.remove(solutionGroup);
+        const solutionGroup = solution3d.getGroup();
         solutionGroup.free();
-        if (solution.isActive()) {
-          this.removeCtrl();
-        }
         this.dispatchEvent({
-          type: TYPES['solution-remove'],
-          solution: solution,
-          solution3d: solution3d,
-          solutionGroup: solutionGroup
+          type: TYPES['solution3d-remove'],
+          solution3d: solution3d
         });
         return solution3d;
       }
     }
   }
-  setActiveSolution3d(solution) {
+  editSolution3d(solution, url) {
     if (solution) {
-      const solution3d = this.getSolution3d(solution.getKey());
+      const k = solution.getKey();
+      const newValue = solution.getAtt(url);
+      const solution3d = this.getSolution3d(k);
+      const group = solution3d.getGroup();
+      switch (url) {
+        case 'p':
+          group.position.fromArray(fromStrToArray(newValue));
+          break;
+      }
+    }
+  }
+  setActiveSolution3d(solution3d) {
+    if (solution3d) {
       if (solution3d !== this.activeSolution3d) {
         this.activeSolution3d = solution3d;
         this.activeSolution = solution3d ? solution3d.getSolution() : undefined;
@@ -184,25 +181,9 @@ export default class Solution3DManager extends EventDispatcher {
     solution3d = solution3d || this.activeSolution3d;
     return solution3d ? solution3d.getActiveProduct() : undefined;
   }
-  getActivePart(solution3d) {
-    solution3d = solution3d || this.activeSolution3d;
-    return solution3d ? solution3d.getActivePart() : undefined;
-  }
   getActiveProduct3d(solution3d) {
     solution3d = solution3d || this.activeSolution3d;
     return solution3d ? solution3d.getActiveProduct3d() : undefined;
-  }
-  getActivePart3d(solution3d) {
-    solution3d = solution3d || this.activeSolution3d;
-    return solution3d ? solution3d.getActivePart3d() : undefined;
-  }
-  getActivePartGroup(solution3d) {
-    solution3d = solution3d || this.activeSolution3d;
-    return solution3d ? solution3d.getActivePartGroup() : undefined;
-  }
-  getPart3dFromGroup(group, solution3d) {
-    solution3d = solution3d || this.activeSolution3d;
-    return solution3d ? solution3d.getPart3dFromGroup(group) : undefined;
   }
   getProduct(key, solution3d) {
     solution3d = solution3d || this.activeSolution3d;
@@ -212,20 +193,12 @@ export default class Solution3DManager extends EventDispatcher {
     solution3d = solution3d || this.activeSolution3d;
     return solution3d ? solution3d.getProduct3d(key) : undefined;
   }
-  getPart(productKey, partKey, solution3d) {
-    solution3d = solution3d || this.activeSolution3d;
-    return solution3d ? solution3d.getPart(productKey, partKey) : undefined;
-  }
-  getPart3d(productKey, partKey, solution3d) {
-    solution3d = solution3d || this.activeSolution3d;
-    return solution3d ? solution3d.getPart3d(productKey, partKey) : undefined;
-  }
   getCache(name) {
     return this.caches[name];
   }
   checkCache(model, func) {
     if (model && model.cache) {
-      var cache = this.getCache(model.parkId);
+      var cache = this.getCache(model.i);
       if (cache) {
         return cache.cloneGroup(func);
       }

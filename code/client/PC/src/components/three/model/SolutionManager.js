@@ -8,6 +8,7 @@ import {
 } from '../util'
 import AddSolutionCommand from './commands/Solution/AddSolutionCommand'
 import RemoveSolutionCommand from './commands/Solution/RemoveSolutionCommand'
+import OperateGroupCommand from './commands/OperateGroupCommand'
 import Solution from './Solution'
 import History from './History'
 import TYPES from '../types'
@@ -22,12 +23,14 @@ export default class SolutionManager extends EventDispatcher {
     this.oldActiveSolution = null;
   }
   init(model, onprogress) {
-    if (model && Array.isArray(model.solutions)) {
-      model.solutions.forEach(solutionModel => {
-        if (!solutionModel.disabled) {
+    if (Array.isArray(model)) {
+      model.forEach(solutionModel => {
+        if (!solutionModel.di) {
           this.buildSolution(solutionModel, onprogress);
         }
       });
+    } else {
+      this.buildSolution(model, onprogress);
     }
   }
   getSolutions() {
@@ -39,8 +42,8 @@ export default class SolutionManager extends EventDispatcher {
   getSolutionCount() {
     return this._solutionArray.length;
   }
-  getSolution(key) {
-    return this._solutions[key];
+  getSolution(k) {
+    return this._solutions[k];
   }
   buildSolutionFromStr(str, onprogress) {
     var model = strToJson(str);
@@ -71,13 +74,13 @@ export default class SolutionManager extends EventDispatcher {
       this.operate.execute(new AddSolutionCommand(this, solution, onprogress));
     }
   }
-  removeSolution(key, isReal, func) {
-    var solution = this.getSolution(key);
+  removeSolution(k, isReal, func) {
+    var solution = this.getSolution(k);
     if (solution) {
       if (isReal) {
         solution._uninit();
         this._solutionArray.splice(this._solutionArray.indexOf(solution), 1);
-        delete this._solutions[key];
+        delete this._solutions[k];
         func && func(solution);
         if (solution === this.activeSolution) {
           if (this.oldActiveSolution) {
@@ -103,17 +106,17 @@ export default class SolutionManager extends EventDispatcher {
     }
     return result;
   }
-  isActiveSolution(key) {
-    if (key && this.activeSolution) {
-      return this.activeSolution.getKey() === key;
+  isActiveSolution(k) {
+    if (k && this.activeSolution) {
+      return this.activeSolution.getKey() === k;
     }
     return false;
   }
   getActiveSolution() {
     return this.activeSolution;
   }
-  setActiveSolution(key) {
-    var solution = key ? this.getSolution(key) : undefined;
+  setActiveSolution(k) {
+    var solution = k ? this.getSolution(k) : undefined;
     if (this.activeSolution !== solution) {
       this.oldActiveSolution = this.activeSolution;
       if (this.oldActiveSolution) {
@@ -125,11 +128,33 @@ export default class SolutionManager extends EventDispatcher {
     }
     return false;
   }
+  buildProductFromStr(str, onprogress, solution) {
+    solution = solution || this.activeSolution;
+    return solution ? solution.buildProductFromStr(str, onprogress) : undefined;
+  }
+  buildProduct(model, onprogress, solution) {
+    solution = solution || this.activeSolution;
+    return solution ? solution.buildProduct(model, onprogress) : undefined;
+  }
+  getActiveProduct(solution) {
+    solution = solution || this.activeSolution;
+    return solution ? solution.getActiveProduct() : undefined;
+  }
+  getProduct(key, solution) {
+    solution = solution || this.activeSolution;
+    return solution ? solution.getProduct(key) : undefined;
+  }
   reset() {
     this.removeSolutions();
     this._solutions = {};
     this._solutionArray = [];
     this.clearHistory();
+  }
+  beginGroup() {
+    this.operate.execute(new OperateGroupCommand({ type: 'begin', operate: this.operate, manager: this }));
+  }
+  endGroup() {
+    this.operate.execute(new OperateGroupCommand({ type: 'end', operate: this.operate, manager: this }));
   }
   undo() {
     this.dispatchEvent({ type: TYPES['before-undo'], solutionManager: this });

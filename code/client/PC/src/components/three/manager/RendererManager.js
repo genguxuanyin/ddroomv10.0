@@ -74,9 +74,11 @@ export class Renderer3D extends EventDispatcher {
     this.renderer.shadowMapSoft = this.config.shadowMap.soft;
 
     this.container.appendChild(this.renderer.domElement);
+    /*
     this.container.addEventListener('mousedown', (e) => {
       this.manager.dispatchEvent({ type: TYPES['mousedown'], event: e || event, renderer3d: this });
     });
+    */
     this.container.addEventListener('mouseup', (e) => {
       this.manager.dispatchEvent({ type: TYPES['mouseup'], event: e || event, renderer3d: this });
     });

@@ -1,11 +1,11 @@
 import Command from "./Command";
 
 export default class MultiCmdsCommand extends Command {
-  constructor(cmdArray) {
+  constructor(manager, cmdArray) {
     super();
     this.type = 'MultiCmdsCommand';
     this.name = 'Multiple Changes';
-
+    this.manager = manager;
     this.cmdArray = (cmdArray !== undefined) ? cmdArray : [];
   }
   execute() {

@@ -7,41 +7,32 @@ import {
   values
 } from 'lodash'
 import {
-  strToJson,
-  jsonToStr
+  jsonToStr,
+  strToJson
 } from '../util'
-import AddPartCommand from './commands/Part/AddPartCommand'
-import RemovePartCommand from './commands/Part/RemovePartCommand'
+import AddProductCommand from './commands/Product/AddProductCommand'
+import RemoveProductCommand from './commands/Product/RemoveProductCommand'
+import MoveProductCommand from './commands/Product/MoveProductCommand'
 import EditProductCommand from './commands/Product/EditProductCommand'
 
-import Part from './Part'
-
 export default class Product {
-  constructor(solution) {
+  constructor(solution, pproduct) {
     this.solution = solution;
     this.manager = solution.manager;
-    this._partArray = [];
-    this._parts = {};
-    this._partCount = 0;
-    this.state = 'none';
+    this._pproduct = pproduct;
+    this._productArray = [];
+    this._products = {};
+    this._productCount = 0;
   }
   init(model) {
     this._model = model || {};
-    this._model.clazz = 'Product';
-    this._model.parts = this._model.parts || [];
-    if (!this._model.key) {
-      this._model.key = shortid.generate();
+    this._model.cl = 'P'; // class
+    if (!this._model.k) {
+      this._model.k = shortid.generate();
     }
   }
   initFromStr(str) {
     var model = strToJson(str);
-    this.init(model);
-  }
-  load(id) {
-    // 根据id从服务器获取模型数据
-    var model = {
-
-    };
     this.init(model);
   }
   getModel() {
@@ -62,182 +53,164 @@ export default class Product {
     }
   }
   getKey() {
-    return this.getAtt('key');
+    return this.getAtt('k');
   }
   getClass() {
-    return this.getAtt('clazz');
+    return this.getAtt('cl');
   }
-  isIniting() {
-    return this.state === 'initing';
+  getParent() {
+    return this._pproduct ? this._pproduct : this.solution;
   }
-  isReady() {
-    return this.state === 'inited';
+  hasParentProduct() {
+    return !!this._pproduct;
   }
-  getSolution() {
-    return this.solution;
+  getProducts() {
+    return this._products;
   }
-  getSolutionKey() {
-    return this.solution.getKey();
+  getProductCount(isAll) {
+    return isAll ? this._productCount : this._productArray.length;
   }
-  getParts() {
-    return this._parts;
+  getProductArray(isAll) {
+    if (isAll) {
+      return values(this._products)
+    } else {
+      return this._productArray;
+    }
+  }
+  getProduct(k) {
+    return this._products[k];
+  }
+  resetKey(model) {
+    delete model.k;
+    Array.isArray(model.c) && model.c.forEach(m => this.resetKey(m));
   }
   cloneModel() {
     return cloneDeep(this.getModel());
   }
-  cloneProduct() {
+  copyProduct() {
+    var model = this.copyModel(false);
+    return this.buildProduct(model, null, this._pproduct);
+  }
+  copyModel(isCopyKey) {
     var model = this.cloneModel();
-    var product = new Product(this.solution);
+    if (!isCopyKey) {
+      this.resetKey(model);
+    }
+    return model;
+  }
+  buildProduct(model, onprogress, pproduct = this) {
+    var product = new Product(this.solution, pproduct);
     product.init(model);
+    this.addProduct(product, onprogress);
     return product;
   }
-  getPartCount(isAll) {
-    return isAll ? this._partCount : this._partArray.length;
-  }
-  getPartArray(isAll) {
-    if (isAll) {
-      return values(this._parts);
+  moveTo(receiver = this.solution, isReal) {
+    if (isReal) {
+      var parent = this.getParent();
+      if (parent !== receiver) {
+        parent.removeProduct(this.getKey(), true, true, false);
+        this._pproduct = receiver === this.solution ? this.solution : receiver;
+        receiver.addProduct(this, null, true, true, false);
+      }
     } else {
-      return this._partArray;
+      this.manager.operate.execute(new MoveProductCommand(this.manager, this, receiver));
     }
-  }
-  getPart(key, isAll) {
-    var part = this._partArray.find(p => p.getKey() === key);
-    if (!part && isAll) {
-      return this._parts[key];
-    }
-    return part;
-  }
-  isActive(isReal) {
-    return isReal ? this._model.active : this.solution.isActiveProduct(this.getKey());
-  }
-  setActive(active) {
-    this._model.active = active === undefined ? true : active === true;
-    if (this._model.active === true) {
-      this.solution.setActiveProduct(this.getKey());
-    }
-  }
-  getActivePart() {
-    return this.solution.getActivePart();
-  }
-  isActivePart(key) {
-    return this.solution.isActivePart(this.getKey(), key);
-  }
-  setActivePart(key) {
-    this.solution.setActivePart(this.getKey(), key);
   }
   remove() {
-    this.solution.removeProduct(this.getKey());
+    var parent = this.getParent();
+    parent.removeProduct(this.getKey());
   }
-  buildPartFromStr(str, onprogress) {
-    var model = strToJson(str);
-    return this.buildPart(model, onprogress);
-  }
-  buildPart(model, onprogress) {
-    var part = new Part(this, null);
-    part.init(model);
-    this.addPart(part, onprogress);
-    return part;
-  }
-  addPart(part, onprogress, isReal, isSelf, isSub) {
+  addProduct(product, onprogress, isReal, isSelf, isSub) {
     if (isReal) {
-      var model = part.getModel();
-      this._parts[model.key] = part;
-      this._partCount++;
+      var model = product.getModel();
+      this._products[model.k] = product;
+      this._productCount++;
+      var parent = this.getParent();
+      parent.addProduct(product, onprogress, true, false, false);
       if (isSelf) {
-        this._partArray.push(part);
-        if (!isSub && this._model.parts.indexOf(model) < 0) {
-          this._model.parts.push(model);
+        this._productArray.push(product);
+        if (!isSub && this._model.c.indexOf(model) < 0) {
+          this._model.c.push(model);
         }
-        if (Array.isArray(model.parts) && model.parts.length > 0) {
-          model.parts.forEach(p => {
-            if (!p.disabled) {
-              const subPart = new Part(this, part);
-              subPart.init(p);
-              part.addPart(subPart, onprogress, true, true, true);
+        if (Array.isArray(model.c) && model.c.length > 0) {
+          model.c.forEach(p => {
+            if (!p.di) {
+              const subProduct = new Product(this.solution, product);
+              subProduct.init(p);
+              product.addProduct(subProduct, onprogress, true, true, true);
             }
           })
         }
       }
     } else {
-      this.manager.operate.execute(new AddPartCommand(this.manager, this, part, onprogress));
+      this.manager.operate.execute(new AddProductCommand(this.manager, this, product, onprogress));
     }
   }
-  removePart(key, isReal, isSelf, isSub) {
-    var part = this.getPart(key);
-    if (part) {
+  removeProduct(k, isReal, isSelf, isSub) {
+    var product = this.getProduct(k);
+    if (product) {
       if (isReal) {
-        const model = part.getModel();
+        var model = product.getModel();
         if (isSelf) {
-          if (Array.isArray(model.parts) && model.parts.length > 0) {
-            model.parts.filter(p => !p.disabled).forEach(p => part.removePart(p.key, true, true, true))
+          if (Array.isArray(model.c) && model.c.length > 0) {
+            model.c.filter(p => !p.di).forEach(p => product.removeProduct(p.k, true, true, true));
           }
         }
-        delete this._parts[key];
-        this._partCount--;
+        delete this._products[k];
+        this._productCount--;
         if (isSelf) {
-          this._partArray.splice(this._partArray.indexOf(part), 1);
+          this._productArray.splice(this._productArray.indexOf(product), 1);
           if (!isSub) {
-            this._model.parts.splice(this._model.parts.indexOf(model), 1);
+            this._model.c.splice(this._model.c.indexOf(model), 1);
           }
         }
+        this.getParent().removeProduct(product.getKey(), true, false, false);
       } else {
-        this.manager.operate.execute(new RemovePartCommand(this.manager, part.getParent(), part));
+        this.manager.operate.execute(new RemoveProductCommand(this.manager, product.getParent(), product));
       }
     }
-    return part;
+    return product;
   }
-  removeParts() {
-    var result = []; var parts = this._model.parts || [];
-    switch (parts.length) {
+  removeProducts() {
+    var result = []; var products = this._model.c || [];
+    switch (products.length) {
       case 0:
         return result;
       case 1:
-        result.push(this.removePart(parts[0].key));
+        result.push(this.removeProduct(products[0].k));
         break;
       default:
         this.beginGroup();
-        while (parts.length > 0) {
-          result.push(this.removePart(parts[0].key));
+        while (products.length > 0) {
+          result.push(this.removeProduct(products[0].k));
         }
         this.endGroup();
         break;
     }
     return result;
   }
+  isActive(isReal) {
+    return isReal ? this._model.a : this.solution.isActiveProduct(this.getKey());
+  }
+  setActive(active) {
+    this._model.a = active === undefined ? true : active === true;
+    if (this._model.a === true) {
+      this.solution.setActiveProduct(this.getKey());
+    }
+  }
+  beginGroup() {
+    this.manager.beginGroup();
+  }
+  endGroup() {
+    this.manager.endGroup();
+  }
   undo() {
-    this.solution.undo();
+    this.manager.undo();
   }
   redo() {
-    this.solution.redo();
+    this.manager.redo();
   }
   toString() {
     return jsonToStr(this.getModel());
-  }
-  _init(onprogress) {
-    if (this.state !== 'inited') {
-      this.state = 'initing';
-      const model = this._model;
-      if (model.parts && model.parts.length > 0) {
-        model.parts.forEach(p => {
-          if (!p.disabled) {
-            const subPart = new Part(this, null);
-            subPart.init(p);
-            this.addPart(subPart, onprogress, true, true, true);
-          }
-        })
-      }
-      this.state = 'inited';
-    }
-  }
-  _uninit() {
-    if (this.state === 'inited') {
-      this.state = 'uniniting';
-      const model = this.getModel();
-      if (Array.isArray(model.parts) && model.parts.length > 0) {
-        model.parts.filter(p => !p.disabled).forEach(p => this.removePart(p.key, true, true, true));
-      }
-      this.state = 'uninited';
-    }
   }
 }

@@ -64,7 +64,7 @@ export default class CameraManager {
         camera = new OrthographicCamera(v.width / -2, v.width / 2, v.height / 2, v.height / -2, v.near, v.far);
         break;
     }
-    if (v.name && !this.configs[v.name]) {
+    if (v.name && !this.cameras[v.name]) {
       camera.name = v.name;
       this.cameras[v.name] = camera;
       this.setCamera(v.name, v);

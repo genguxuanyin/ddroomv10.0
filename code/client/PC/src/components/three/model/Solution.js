@@ -22,14 +22,15 @@ export default class Solution {
     this.manager = manager;
     this._productArray = [];
     this._products = {};
+    this._productCount = 0;
     this.state = 'none';
   }
   init(model) {
     this._model = model || {};
-    this._model.clazz = 'Solution';
-    this._model.products = this._model.products || [];
-    if (!this._model.key) {
-      this._model.key = shortid.generate();
+    this._model.cl = 'S';
+    this._model.c = this._model.c || [];
+    if (!this._model.k) {
+      this._model.k = shortid.generate();
     }
   }
   getModel() {
@@ -50,10 +51,10 @@ export default class Solution {
     }
   }
   getKey() {
-    return this.getAtt('key');
+    return this.getAtt('k');
   }
   getClass() {
-    return this.getAtt('clazz');
+    return this.getAtt('cl');
   }
   getState() {
     return this.state;
@@ -82,66 +83,33 @@ export default class Solution {
   getProductArray() {
     return this._productArray;
   }
-  getProductCount() {
-    return this._productArray.length;
+  getProductCount(isAll) {
+    return isAll ? this._productCount : this._productArray.length;
   }
   getActiveProduct() {
     return this.activeProduct;
   }
-  isActiveProduct(key) {
-    if (key && this.activeProduct) {
-      return this.activeProduct.getKey() === key;
+  isActiveProduct(k) {
+    if (k && this.activeProduct) {
+      return this.activeProduct.getKey() === k;
     }
     return false;
   }
-  setActiveProduct(key, notSetPart) {
-    var product = key ? this.getProduct(key) : undefined;
+  setActiveProduct(k) {
+    var product = k ? this.getProduct(k) : undefined;
     if (product !== this.activeProduct) {
       this.oldActiveProduct = this.activeProduct;
       if (this.oldActiveProduct) {
         this.oldActiveProduct.setActive(false);
       }
       this.activeProduct = product;
-      if (!notSetPart && this.activePart && this.activePart.getProduct() !== product) {
-        this.oldActivePart = this.activePart;
-        this.activePart = undefined;
-      }
       this.manager.dispatchEvent({ type: TYPES['product-changed-active'], activeProduct: this.activeProduct, oldActiveProduct: this.oldActiveProduct });
       return true;
     }
     return false;
   }
-  getActivePart() {
-    return this.activePart;
-  }
-  isActivePart(productKey, partKey) {
-    if (this.isActiveProduct(productKey)) {
-      if (partKey && this.activePart) {
-        return this.activePart.getKey() === partKey;
-      }
-    }
-    return false;
-  }
-  setActivePart(productKey, partKey) {
-    const result = this.setActiveProduct(productKey, true);
-    const part = (this.activeProduct && partKey) ? this.activeProduct.getPart(partKey) : undefined;
-    if (part !== this.activePart) {
-      this.oldActivePart = this.activePart;
-      if (this.oldActivePart) {
-        this.oldActivePart.setActive(false);
-      }
-      this.activePart = part;
-      this.manager.dispatchEvent(TYPES['part-changed-active'], { activePart: this.activePart, oldActivePart: this.oldActivePart });
-      return true;
-    }
-    return result;
-  }
-  getProduct(key) {
-    return this._products[key];
-  }
-  getPart(productKey, partKey) {
-    var product = this.getProduct(productKey);
-    return product ? product.getPart(partKey, true) : null;
+  getProduct(k) {
+    return this._products[k];
   }
   buildProductFromStr(str, onprogress) {
     var model = strToJson(str);
@@ -153,34 +121,56 @@ export default class Solution {
     this.addProduct(product, onprogress);
     return product;
   }
-  addProduct(product, onprogress, isReal, func) {
+  /*
+    isReal 是否真正创建 用于判断是否经过 history
+    isSelf 是否是当前product或solution的直接product
+    isSub 是否由父级直接创建，用于判断是否移动model
+  */
+  addProduct(product, onprogress, isReal, isSelf, isSub) {
     if (isReal) {
-      var model = product.getModel();
-      if (this._model.products.indexOf(model) < 0) {
-        this._model.products.push(model);
-      }
-      this._productArray.push(product);
-      this._products[product.getKey()] = product;
-      product._init(onprogress);
-      func && func(product);
-      if (!this.activeProduct || product === this.oldActiveProduct || product.isActive(true)) {
-        product.setActive(true);
+      if (product) {
+        var model = product.getModel();
+        this._products[model.k] = product;
+        this._productCount++;
+        if (isSelf) {
+          this._productArray.push(product);
+          if (!isSub && this._model.c.indexOf(model) < 0) {
+            this._model.c.push(model);
+          }
+          if (Array.isArray(model.c) && model.c.length > 0) {
+            model.c.forEach(p => {
+              if (!p.di) {
+                const subProduct = new Product(this, product);
+                subProduct.init(p);
+                product.addProduct(subProduct, onprogress, true, true, true);
+              }
+            })
+          }
+        }
+        if (!this.activeProduct || product === this.oldActiveProduct || product.isActive(true)) {
+          product.setActive(true);
+        }
       }
     } else {
-      this.manager.operate.execute(new AddProductCommand(this.manager, product, onprogress));
+      this.manager.operate.execute(new AddProductCommand(this.manager, this, product, onprogress));
     }
   }
-  removeProduct(key, isReal, func) {
-    var product = this.getProduct(key);
+  removeProduct(k, isReal, isSelf, isSub) {
+    var product = this.getProduct(k);
     if (product) {
       if (isReal) {
-        product._uninit();
-        this._model.products.splice(this._model.products.indexOf(product.getModel()), 1);
-        this._productArray.splice(this._productArray.indexOf(product), 1);
-        delete this._products[key];
-        if (func) {
-          func(product);
+        var model = product.getModel();
+        if (isSelf) {
+          if (Array.isArray(model.c) && model.c.length > 0) {
+            model.c.filter(p => !p.di).forEach(p => product.removeProduct(p.k, true, true, true));
+          }
+          this._productArray.splice(this._productArray.indexOf(product), 1);
+          if (!isSub) {
+            this._model.c.splice(this._model.c.indexOf(model), 1);
+          }
         }
+        delete this._products[k];
+        this._productCount--;
         if (product === this.activeProduct) {
           if (this.oldActiveProduct) {
             this.oldActiveProduct.setActive(true);
@@ -193,7 +183,7 @@ export default class Solution {
           this.oldActiveProduct = undefined;
         }
       } else {
-        this.manager.operate.execute(new RemoveProductCommand(this.manager, product));
+        this.manager.operate.execute(new RemoveProductCommand(this.manager, this, product));
       }
     }
     return product;
@@ -214,11 +204,17 @@ export default class Solution {
     solution.init(model);
     return solution;
   }
+  beginGroup() {
+    this.manager.beginGroup();
+  }
+  endGroup() {
+    this.manager.endGroup();
+  }
   undo() {
-    this.manager.operate.undo();
+    this.manager.undo();
   }
   redo() {
-    this.manager.operate.redo();
+    this.manager.redo();
   }
   clear() {
     this.removeProducts();
@@ -230,12 +226,12 @@ export default class Solution {
     if (this.state !== 'inited') {
       this.state = 'initing';
       const model = this._model;
-      if (Array.isArray(model.products)) {
-        model.products.forEach(p => {
-          if (!p.disabled) {
+      if (Array.isArray(model.c)) {
+        model.c.forEach(p => {
+          if (!p.di) {
             const product = new Product(this);
             product.init(p);
-            this.addProduct(product, onprogress, true);
+            this.addProduct(product, onprogress, true, true, false);
           }
         })
       }
@@ -246,9 +242,10 @@ export default class Solution {
     if (this.state === 'inited') {
       this.state = 'uniniting';
       const model = this.getModel();
-      if (Array.isArray(model.products)) {
-        model.products.filter(p => !p.disabled).forEach(p => this.removeProduct(p.key, true));
+      if (Array.isArray(model.c)) {
+        model.c.filter(p => !p.di).forEach(p => this.removeProduct(p.k, true, true, false));
       }
+      // this._model = null;
       this.state = 'uninited';
     }
   }

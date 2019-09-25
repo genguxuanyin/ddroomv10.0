@@ -2,9 +2,11 @@ import Scene3D from './Scene3D'
 import SolutionManager from './model/SolutionManager'
 import Solution3DManager from './model3d/Solution3DManager'
 
-import model from './model/InitModel'
+// import model from './model/InitModel'
+import model from './model/model'
+import '../../utils/hotkeys'
 
-export default class Designer {
+export default new class {
   constructor() {
     this.scene3d = new Scene3D();
     this.solutionManager = new SolutionManager();
@@ -12,9 +14,13 @@ export default class Designer {
   }
   init() {
     this.scene3d.init();
+    console.time("XXX");
     this.solution3DManager.init();
-    this.solutionManager.init(model);
-    console.log(this.solutionManager)
-    console.log(this.solution3DManager)
+    this.solutionManager.init(model, function() {
+      // console.log(arguments)
+    });
+    console.timeEnd("XXX");
+    console.log(this.solutionManager);
+    console.log(this.solution3DManager);
   }
-}
+}();
