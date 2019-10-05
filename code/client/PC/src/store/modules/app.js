@@ -5,7 +5,8 @@ const state = {
     opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
     withoutAnimation: false
   },
-  device: 'desktop'
+  device: 'desktop',
+  current: {}
 }
 
 const mutations = {
@@ -25,6 +26,19 @@ const mutations = {
   },
   TOGGLE_DEVICE: (state, device) => {
     state.device = device
+  },
+  CURRENT_RESET: (state) => {
+    state.current = {};
+  },
+  CURRENT_ADD: (state, payload) => {
+    for (let i = 0; i < payload.length; i++) {
+      state.current[payload[i]] = true;
+    }
+  },
+  CURRENT_REMOVE: (state, payload) => {
+    for (let i = 0; i < payload.length; i++) {
+      delete state.current[payload[i]];
+    }
   }
 }
 
@@ -37,6 +51,19 @@ const actions = {
   },
   toggleDevice({ commit }, device) {
     commit('TOGGLE_DEVICE', device)
+  },
+  currentReset({ commit }) {
+    commit('CURRENT_RESET')
+  },
+  currentAdd({ commit }, payload) {
+    commit('CURRENT_ADD', payload)
+  },
+  currentRemove({ commit }, payload) {
+    commit('CURRENT_REMOVE', payload)
+  },
+  currentChange({ commit }, payload) {
+    commit('CURRENT_RESET')
+    commit('CURRENT_ADD', payload)
   }
 }
 

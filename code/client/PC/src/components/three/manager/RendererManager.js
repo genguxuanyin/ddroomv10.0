@@ -2,30 +2,14 @@ import {
   EventDispatcher,
   WebGLRenderer,
   PCFSoftShadowMap,
-  Group,
-  ReinhardToneMapping
+  Group
 } from 'three'
 import TYPES from '../types';
 const CONFIGS = [
   {
     name: 'defRender',
     id: 'three-view-container',
-    antialias: true,
-    clearColor: {
-      color: 0x666666,
-      alpha: 1
-    },
-    shadowMap: {
-      soft: true,
-      needsUpdate: true,
-      disabled: false
-    },
-    shadowMapEnabled: true,
-    physicallyCorrectLights: true,
-    toneMapping: ReinhardToneMapping,
-    gammaInput: true,
-    gammaOutput: true,
-    camera: '3d',
+    camera: 'three',
     isDefault: true,
     disabled: false
   }
@@ -63,22 +47,19 @@ export class Renderer3D extends EventDispatcher {
     }
 
     this.renderer = new WebGLRenderer({ antialias: true });
-    this.renderer.setClearColor(this.config.clearColor.color, this.config.clearColor.alpha);
+    this.renderer.setClearColor(0xf4f4f4, 1);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.size.width, this.size.height);
-    this.renderer.setClearAlpha(this.config.backgroundAlpha);
 
-    this.renderer.shadowMap.enabled = this.config.shadowMap.enabled;
-    this.renderer.shadowMap.needsUpdate = this.config.shadowMap.needsUpdate;
-    this.renderer.shadowMap.type = PCFSoftShadowMap;
-    this.renderer.shadowMapSoft = this.config.shadowMap.soft;
+    // this.renderer.shadowMap.enabled = this.config.shadowMap.enabled;
+    // this.renderer.shadowMap.needsUpdate = this.config.shadowMap.needsUpdate;
+    // this.renderer.shadowMap.type = PCFSoftShadowMap;
+    // this.renderer.shadowMapSoft = this.config.shadowMap.soft;
 
     this.container.appendChild(this.renderer.domElement);
-    /*
     this.container.addEventListener('mousedown', (e) => {
       this.manager.dispatchEvent({ type: TYPES['mousedown'], event: e || event, renderer3d: this });
     });
-    */
     this.container.addEventListener('mouseup', (e) => {
       this.manager.dispatchEvent({ type: TYPES['mouseup'], event: e || event, renderer3d: this });
     });

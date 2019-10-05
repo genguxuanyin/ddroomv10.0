@@ -5,7 +5,10 @@ import {
   Group,
   Vector2,
   Raycaster,
-  AxesHelper
+  AxesHelper,
+  Plane,
+  Vector3,
+  PlaneHelper
 } from 'three'
 const CONFIG = {
 
@@ -25,11 +28,13 @@ export default class Scene3D extends EventDispatcher {
     const envGroup = new Group();
     const tempGroup = new Group();
     const ctrlGroup = new Group();
+    const helpGroup = new Group();
     rootGroup.name = 'rootGroup';
     lightGroup.name = 'lightGroup';
     envGroup.name = 'envGroup';
     tempGroup.name = 'tempGroup';
     ctrlGroup.name = 'ctrlGroup';
+    helpGroup.name = 'helpGroup';
     super();
     this.config = CONFIG || {};
     this.rootGroup = rootGroup;
@@ -37,20 +42,26 @@ export default class Scene3D extends EventDispatcher {
     this.envGroup = envGroup;
     this.tempGroup = tempGroup;
     this.ctrlGroup = ctrlGroup;
-    this.canFindObj = false;
+    this.helpGroup = helpGroup;
+    this.canFindObj = true;
     this.reqId = null;
-    this.view = '3d';
+    this.view = 'three';
+    this.plane = new Plane(new Vector3(0, 1, 0), 0);
+    this.planeState = false;
   }
   init() {
     this.scene = new Scene();
-    this.scene.add(this.rootGroup);
+    this.scene.add(this.rootGroup); // 放置方案产品
     this.scene.add(this.lightGroup);
     this.scene.add(this.envGroup);
     this.scene.add(this.tempGroup);
     this.scene.add(this.ctrlGroup);
+    this.scene.add(this.helpGroup);
 
     var axesHelper = new AxesHelper(1000);
-    this.scene.add(axesHelper);
+    var planeHelper = new PlaneHelper(this.plane, 2000, 0xffff00);
+    this.helpGroup.add(axesHelper);
+    this.helpGroup.add(planeHelper);
 
     this.cameraManager = new CameraManager(this);
     this.cameraManager.init();
@@ -95,7 +106,7 @@ export default class Scene3D extends EventDispatcher {
       container && container.appendChild(this.stats.dom);
     }
 
-    this.dispatchEvent(TYPES['scene3d-init'], { scene3d: this });
+    this.dispatchEvent({ type: TYPES['scene3d-init'], scene3d: this });
     this.start();
   }
   refresh() {
@@ -120,13 +131,16 @@ export default class Scene3D extends EventDispatcher {
   }
   to2d() {
     var oldView = this.getView();
-    this.setView('2d');
+    this.setView('two');
+    this.setPlaneState(true);
     var renderer3d = this.rendererManager.getDefRenderer3D();
     if (renderer3d) {
-      renderer3d.setCamera('2d');
+      renderer3d.setCamera('two');
     }
     oldView === 'fv' && this.controlManager.stopNavigator();
     this.controlManager.setCtrlScene({
+      oldView,
+      newView: 'two',
       enabled: true,
       object: renderer3d.getCamera(),
       enableRotate: false
@@ -134,13 +148,16 @@ export default class Scene3D extends EventDispatcher {
   }
   to3d() {
     var oldView = this.getView();
-    this.setView('3d');
+    this.setView('three');
+    this.setPlaneState(false);
     var renderer3d = this.rendererManager.getDefRenderer3D();
     if (renderer3d) {
-      renderer3d.setCamera('3d');
+      renderer3d.setCamera('three');
     }
     oldView === 'fv' && this.controlManager.stopNavigator();
     this.controlManager.setCtrlScene({
+      oldView,
+      newView: 'three',
       enabled: true,
       object: renderer3d.getCamera(),
       enableRotate: true
@@ -148,6 +165,7 @@ export default class Scene3D extends EventDispatcher {
   }
   toFv() {
     this.setView('fv');
+    this.setPlaneState(false);
     var renderer3d = this.rendererManager.getDefRenderer3D();
     if (renderer3d) {
       renderer3d.setCamera('fv');
@@ -161,6 +179,34 @@ export default class Scene3D extends EventDispatcher {
   getView() {
     return this.view;
   }
+  setPlane(...arg) {
+    // .set ( normal : Vector3, constant : Float ) : Plane
+    // .setComponents ( x : Float, y : Float, z : Float, w : Float ) : Plane
+    // .setFromCoplanarPoints ( a : Vector3, b : Vector3, c : Vector3 ) : Plane
+    // .setFromNormalAndCoplanarPoint ( normal : Vector3, point : Vector3 ) : Plane
+    var fun = arg.shift();
+    this.plane[fun](...arg);
+  }
+  setPlaneState(value) {
+    this.planeState = value;
+  }
+  getObjectByName(name, recursive = false) {
+    if (this.scene) {
+      if (recursive) {
+        return this.scene.getObjectByName(name);
+      }
+      var children = this.scene.children;
+      for (let i = 0; i < children.length; i++) {
+        const g = children[i];
+        if (g.name === name) {
+          return g;
+        }
+      }
+      return null;
+    } else {
+      return this[name];
+    }
+  }
   getMoveFindObj() {
     return this.canFindObj;
   }
@@ -169,18 +215,27 @@ export default class Scene3D extends EventDispatcher {
   }
   _findObject(ev) {
     var oEvent = ev.event;
+    oEvent.preventDefault();
     if (oEvent.button === 0) {
-      oEvent.preventDefault();
       var mouse = new Vector2();
       mouse.x = (oEvent.clientX / this.size.width) * 2 - 1;
       mouse.y = -(oEvent.clientY / this.size.height) * 2 + 1;
       var raycaster = new Raycaster();
       raycaster.setFromCamera(mouse, this.renderer3d.getCamera());
-      var intersects = raycaster.intersectObjects([this.rootGroup], true);
-      if (intersects.length > 0) {
-        console.log(intersects[0].face)
-        this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: intersects[0], intersects: intersects, renderer3d: ev.renderer3d });
+      if (this.planeState) {
+        var intersect = new Vector3();
+        raycaster.ray.intersectPlane(this.plane, intersect);
+        if (intersect) {
+          this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: { point: intersect.round() }, renderer3d: ev.renderer3d });
+        }
+      } else {
+        var intersects = raycaster.intersectObjects([this.rootGroup], true);
+        if (intersects.length > 0) {
+          this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: intersects[0], intersects: intersects, renderer3d: ev.renderer3d });
+        }
       }
+    } else {
+      this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, renderer3d: ev.renderer3d });
     }
   }
 }

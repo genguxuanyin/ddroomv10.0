@@ -29,7 +29,9 @@ export default {
   'mouseup': 'mouseup',
   'camera-changed': 'camera-changed',
 
-  'menu-change-view': 'menu-change-view',
+  'menu-click': 'menu-click',
+  'find-object': 'find-object',
+  'common': 'common',
 
   // History
   'change-history-state': 'change-history-state',

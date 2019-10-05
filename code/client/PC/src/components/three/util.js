@@ -184,14 +184,38 @@ export function fromStrToArray(v, n = 1) { // "1,2,3" => [1,2,3]
   });
 }
 
-export function toVector3FromArray(a) {
+export function fromArraytoVector3(a) {
   return a.map((v) => {
     return toVector3(v);
   })
 }
 
 export function toVector3(v) { // [1,2,3] => Vector3 [1,2,3]
-  return new Vector3(...fromStrToArray(v));
+  return v.isVector3 ? v : new Vector3(...fromStrToArray(v));
+}
+
+export function getClosest(arr, num) { // 二分查找和num最接近的值
+  var left = 0;
+  var right = arr.length - 1;
+  while (left <= right) {
+    var middle = Math.floor((right + left) / 2);
+    if (right - left <= 1) {
+      break;
+    }
+    var val = arr[middle];
+    if (val === num) {
+      return middle;
+    }
+    else if (val > num) {
+      right = middle;
+    }
+    else {
+      left = middle;
+    }
+  }
+  var leftValue = arr[left];
+  var rightValue = arr[right];
+  return rightValue - num > num - leftValue ? leftValue : rightValue;
 }
 
 export function twoPointsEquation({ x: x1, y: y1 }, { x: x2, y: y2 }) { //平面两点求直线方程

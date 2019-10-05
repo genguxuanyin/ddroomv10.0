@@ -47,8 +47,8 @@ const CONFIGS = [
       width: 50000,
       length: 50000
     },
-    rotate: {
-      x: 0,
+    rotation: {
+      x: -Math.PI / 2,
       y: 0,
       z: 0
     },
@@ -114,9 +114,25 @@ export default class EnvManager {
     if (v.name && !this.envs[v.name]) {
       env.name = v.name;
       this.envs[v.name] = env;
+      this.setEnv(v.name, v);
       this.group.add(env);
     } else {
       throw new Error('item.name must exist and be unique')
+    }
+  }
+  setEnv(name, config) {
+    const env = this.envs[name];
+    if (env) {
+      for (const key in config) {
+        switch (key) {
+          case 'position':
+            env.position.set(config[key].x, config[key].y, config[key].z);
+            break;
+          case 'rotation':
+            env.rotation.set(config[key].x, config[key].y, config[key].z);
+            break;
+        }
+      }
     }
   }
   getEnv(name) {

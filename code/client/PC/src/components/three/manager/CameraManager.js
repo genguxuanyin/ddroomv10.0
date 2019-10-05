@@ -7,7 +7,7 @@ import {
 
 const CONFIGS = [
   {
-    name: '3d',
+    name: 'three',
     type: 'perspective',
     fov: 60,
     near: 100,
@@ -26,7 +26,7 @@ const CONFIGS = [
     height: window.innerHeight,
     position: { x: 0, y: 1700, z: 0 }
   }, {
-    name: '2d',
+    name: 'two',
     type: 'orthographic',
     near: 100,
     far: 20000,
@@ -36,7 +36,8 @@ const CONFIGS = [
       x: 0,
       y: 5000,
       z: 0
-    }
+    },
+    zoom: 0.1
   }
 ];
 
@@ -101,31 +102,37 @@ export default class CameraManager {
     const camera = this.cameras[name];
     if (camera) {
       for (const key in config) {
-        switch (key) {
-          case 'position':
-            camera.position.set(config[key].x, config[key].y, config[key].z);
-            break;
-          case 'rotation':
-            camera.rotation.set(
-              config[key].x,
-              config[key].y,
-              config[key].z
-            )
-            break;
-          case 'lookAt':
-            camera.lookAt(
-              new Vector3(
+        if (camera.hasOwnProperty(key)) {
+          switch (key) {
+            case 'position':
+              camera.position.set(config[key].x, config[key].y, config[key].z);
+              break;
+            case 'rotation':
+              camera.rotation.set(
                 config[key].x,
                 config[key].y,
                 config[key].z
               )
-            )
-            break;
-          case 'up':
-            camera.up.set(config[key].x, config[key].y, config[key].z);
-            break;
+              break;
+            case 'lookAt':
+              camera.lookAt(
+                new Vector3(
+                  config[key].x,
+                  config[key].y,
+                  config[key].z
+                )
+              )
+              break;
+            case 'up':
+              camera.up.set(config[key].x, config[key].y, config[key].z);
+              break;
+            case 'zoom':
+              camera.zoom = config[key];
+              break;
+          }
         }
       }
+      camera.updateProjectionMatrix();
     }
   }
   getDefCamera() {

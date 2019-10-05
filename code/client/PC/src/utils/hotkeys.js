@@ -65,13 +65,11 @@ hotkeys('r', (event, handler) => {
 hotkeys('ctrl+z', (event, handler) => {
   event.preventDefault();
   designer.solutionManager.undo();
-  console.log(designer.solutionManager);
 });
 
 hotkeys('ctrl+y', (event, handler) => {
   event.preventDefault();
   designer.solutionManager.redo();
-  console.log(designer.solutionManager);
 });
 
 hotkeys('c', (event, handler) => {

@@ -1,6 +1,8 @@
 import {
   MeshPhongMaterial,
-  MeshPhysicalMaterial
+  MeshPhysicalMaterial,
+  LineDashedMaterial,
+  LineBasicMaterial
 } from 'three'
 import {
   isEqual
@@ -14,10 +16,22 @@ const CONFIGS = [
     type: "Phong",
     color: 0xF5F5F5
   },
+  /* {
+    name: "lineDashed1",
+    type: "dashed",
+    color: 0x000000,
+    dashSize: 120,
+    gapSize: 60
+  }, */
   {
-    name: "phy",
-    type: "Physical",
-    color: 0xF5F5F5
+    name: "line1",
+    type: "line",
+    color: 0x00008B
+  },
+  {
+    name: "circle1",
+    type: "phong",
+    color: 0x00008B
   }
 ];
 import TYPES from '../types'
@@ -42,6 +56,12 @@ export default class MaterialManager {
         break;
       case "physical":
         material = new MeshPhysicalMaterial();
+        break;
+      case "dashed":
+        material = new LineDashedMaterial();
+        break;
+      case "line":
+        material = new LineBasicMaterial();
         break;
     }
     if (config.name && !this.getFromKey(config)) {
@@ -150,15 +170,17 @@ export default class MaterialManager {
       return Object.assign({}, cur, c);
     })
     var materials = [];
-    config.forEach((c) => {
+    for (let i = 0; i < config.length; i++) {
+      const c = config[i];
       var materialObj = this.getFromKey(c);
       if (!materialObj) {
+        if (typeof c.type === 'undefined') break; // 没有设置 材质类型，不能创建
         this.configs.push(c);
         materialObj = this.create(c);
       }
       materialObj.count++;
       materials.push(materialObj.material);
-    })
+    }
     return materials;
   }
 }

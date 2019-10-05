@@ -5,14 +5,20 @@ import {
   CatmullRomCurve3,
   Vector3,
   Vector2,
-  ShapeGeometry
+  ShapeGeometry,
+  Geometry,
+  PlaneGeometry,
+  LineSegments,
+  Line,
+  Group,
+  CircleGeometry
 } from 'three'
 import {
   chunk,
   groupBy,
   round
 } from 'lodash'
-import { toVector3FromArray } from '../util'
+import { fromArraytoVector3 } from '../util'
 import designer from '../Designer'
 
 class Base {
@@ -94,7 +100,7 @@ class Base {
     var { array: arrayPosition } = geometry.getAttribute('position');
     var uvArray = [];
     var cp = chunk(arrayPosition, 3);
-    toVector3FromArray(cp).forEach((v, i, a) => {
+    fromArraytoVector3(cp).forEach((v, i, a) => {
       var _r = this.getRadius(min, v);
       var angleXY = this.getAngleXY(Math.round(_r), v);
       var uvP = this.getUVPosition({ x: angleXY.x || 0, y: angleXY.y || 0 });
@@ -136,7 +142,7 @@ export class CreateExtrude extends Base {
     super();
     var ep, ep_dir, p_dir, cross, path;
     this.model = model;
-    path = toVector3FromArray(this.model.pa);
+    path = fromArraytoVector3(this.model.pa);
     ep = this.model.ep; // 挤压路径
     if (!ep && this.model.h) {
       ep = [
@@ -144,7 +150,7 @@ export class CreateExtrude extends Base {
         `0,${this.model.h},0`
       ];
     }
-    this.ep = toVector3FromArray(ep);
+    this.ep = fromArraytoVector3(ep);
     p_dir = path[1].clone().sub(path[0]).normalize();
     ep_dir = this.ep[1].clone().sub(this.ep[0]).normalize(); // 挤压方向的方向向量
     cross = new Vector3().crossVectors(p_dir, ep_dir).clone().multiplyScalar(this.model.w / 2); // 求正交向量
@@ -189,19 +195,222 @@ export class CreateShape extends Base {
     super();
     var path;
     this.model = model;
-    path = toVector3FromArray(model.pa);
+    path = fromArraytoVector3(model.pa);
     this.path = path.map((v) => {
       return new Vector2(v.x, v.z);
     });
     this.shape = new Shape(this.path);
     this.geometry = new ShapeGeometry(this.shape);
     this.material = designer.scene3d.materialManager.getMaterial({ name: 'def', side: 1, map: 'http://f3d.ddroom.cn/upload/images/7723af81-49f7-4a75-b4dd-a3afe4e06fb3/2017-11-01112913/manguchuntian.jpg' })[0];
-    // this.material = new MeshPhongMaterial({ color: 0xF5F5F5, side: 1 });
     this.filterFace();
     this.calcUvs();
     this.mesh = new Mesh(this.geometry, this.material);
   }
   create() {
     return this.mesh;
+  }
+}
+
+export class CreateLineSegments {
+  constructor(path = ['0,0,0', '1,0,1']) {
+    this.path = fromArraytoVector3(path);
+    this.geometry = new Geometry();
+    this.geometry.vertices.push(...this.path);
+    this.material = designer.scene3d.materialManager.getMaterial('lineDashed1')[0];
+    this.mesh = new LineSegments(this.geometry, this.material);
+    this.mesh.computeLineDistances();
+  }
+  create() {
+    return this.mesh;
+  }
+  update(path) {
+    this.path = path;
+    this.geometry.vertices.length = 0;
+    this.geometry.vertices.push(...this.path);
+    this.geometry.verticesNeedUpdate = true;
+    this.geometry.lineDistancesNeedUpdate = true;
+    this.mesh.computeLineDistances();
+  }
+}
+
+export class CreateLine {
+  constructor(path) {
+    this.path = fromArraytoVector3(path);
+    this.geometry = new Geometry();
+    this.material = designer.scene3d.materialManager.getMaterial({
+      name: "line1",
+      type: "line",
+      color: 0x00008B
+    })[0];
+    this.geometry.vertices.push(...this.path);
+    this.mesh = new Line(this.geometry, this.material);
+  }
+  create() {
+    return this.mesh;
+  }
+  update(path) {
+    this.path = path;
+    this.geometry.vertices.length = 0;
+    this.geometry.vertices.push(...this.path);
+    this.geometry.verticesNeedUpdate = true;
+  }
+  setVisible(value) {
+    this.mesh.visible !== !!value && (this.mesh.visible = !!value)
+  }
+}
+
+export class CreateCircle {
+  constructor(r, pos) {
+    this.r = r;
+    this.pos = pos;
+    this.geometry = new CircleGeometry(r, 32);
+    this.material = designer.scene3d.materialManager.getMaterial({
+      name: "circle1",
+      type: "phong",
+      color: 0x00008B
+    })[0];
+    this.mesh = new Mesh(this.geometry, this.material);
+    this.mesh.rotateX(-Math.PI / 2);
+    this.mesh.position.copy(this.pos);
+  }
+  create() {
+    return this.mesh;
+  }
+  update(pos) {
+    this.mesh.position.copy(pos);
+  }
+}
+
+export class CreateDraw extends Group {
+  constructor(model) {
+    super();
+    var ep, p_dir, ep_dir, cross, path;
+    this.model = model;
+    this.lines = [];
+    path = fromArraytoVector3(this.model.pa);
+    ep = this.model.ep; // 挤压路径
+    if (!ep && this.model.h) {
+      ep = [
+        '0,0,0',
+        `0,${this.model.h},0`
+      ];
+    }
+    this.ep = fromArraytoVector3(ep);
+    p_dir = path[1].clone().sub(path[0]).normalize();
+    ep_dir = this.ep[1].clone().sub(this.ep[0]).normalize(); // 挤压方向的方向向量
+    cross = new Vector3().crossVectors(p_dir, ep_dir).clone().multiplyScalar(this.model.w / 2); // 求正交向量
+    this.path = [
+      path[0].clone().add(cross),
+      path[0],
+      path[0].clone().sub(cross),
+      path[1].clone().sub(cross),
+      path[1],
+      path[1].clone().add(cross),
+      path[0].clone().add(cross)
+    ]
+    this.visible = false;
+    this.create();
+  }
+  create() {
+    var paths = [
+      [this.path[1], this.path[4]],
+      this.path,
+      ['-1,0,0', '1,0,0'],
+      ['0,-1,0', '0,1,0'],
+      ['0,0,-1', '0,0,1']
+    ]
+    paths.forEach(p => {
+      this.lines.push(new CreateLine(p))
+      this.add(this.lines[this.lines.length - 1].create())
+    });
+    this.circle = new CreateCircle(this.model.w / 2, this.path[4]);
+    this.add(this.circle.create());
+  }
+  update(model, adsorbAxes) {
+    if (this.visible === false) this.visible = true;
+    var ep, ep_dir, p_dir, cross, path;
+    this.model = model;
+    path = fromArraytoVector3(this.model.pa);
+    ep = this.model.ep; // 挤压路径
+    if (!ep && this.model.h) {
+      ep = [
+        '0,0,0',
+        `0,${this.model.h},0`
+      ];
+    }
+    this.ep = fromArraytoVector3(ep);
+    p_dir = path[1].clone().sub(path[0]).normalize();
+    ep_dir = this.ep[1].clone().sub(this.ep[0]).normalize(); // 挤压方向的方向向量
+    cross = new Vector3().crossVectors(p_dir, ep_dir).clone().multiplyScalar(this.model.w / 2); // 求正交向量
+    this.path = [
+      path[0].clone().add(cross),
+      path[0],
+      path[0].clone().sub(cross),
+      path[1].clone().sub(cross),
+      path[1],
+      path[1].clone().add(cross),
+      path[0].clone().add(cross)
+    ]
+    var paths = [
+      [this.path[1], this.path[4]],
+      this.path,
+      ['-1,0,0', '1,0,0'],
+      ['0,-1,0', '0,1,0'],
+      ['0,0,-1', '0,0,1']
+    ]
+    for (let i = 0; i < 2; i++) {
+      const line = this.lines[i];
+      line.update(paths[i]);
+    }
+    var flag, dir, cross_dir;
+    for (let i = 2; i < 5; i++) {
+      flag = adsorbAxes[i - 2];
+      dir = new Vector3();
+      dir.setComponent(i - 2, 1);
+      cross_dir = new Vector3().crossVectors(dir, ep_dir);
+      cross_dir.multiplyScalar(20000);
+      this.lines[i].setVisible(flag);
+      this.lines[i].update([this.path[4].clone().sub(cross_dir), this.path[4].clone().add(cross_dir)]);
+    }
+    this.circle.update(this.path[4])
+  }
+}
+
+export class CreatePoint extends Group {
+  constructor(point, radius = 120, ep_dir = new Vector3(0, 1, 0)) {
+    super();
+    this.point = point;
+    this.radius = radius;
+    this.ep_dir = ep_dir;
+    this.lines = [];
+    this.visible = false;
+    this.create();
+  }
+  create() {
+    var paths = [
+      ['-1,0,0', '1,0,0'],
+      ['0,-1,0', '0,1,0'],
+      ['0,0,-1', '0,0,1']
+    ]
+    paths.forEach(p => {
+      this.lines.push(new CreateLine(p))
+      this.add(this.lines[this.lines.length - 1].create())
+    });
+    this.circle = new CreateCircle(this.radius, this.point);
+    this.add(this.circle.create());
+  }
+  update(point, adsorbAxes) {
+    if (this.visible === false) this.visible = true;
+    this.lines.forEach((l, i) => {
+      var flag, dir, cross_dir;
+      flag = adsorbAxes[i];
+      dir = new Vector3();
+      dir.setComponent(i, 1);
+      cross_dir = new Vector3().crossVectors(dir, this.ep_dir);
+      cross_dir.multiplyScalar(20000);
+      l.setVisible(flag);
+      l.update([point.clone().sub(cross_dir), point.clone().add(cross_dir)]);
+    })
+    this.circle.update(point)
   }
 }

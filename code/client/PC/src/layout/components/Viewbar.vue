@@ -11,41 +11,18 @@
   </div>
 </template>
 <script>
-import ee from '../../utils/event'
-import TYPES from '@/components/three/types'
 export default {
   data() {
-    return {
-      views: [
-        {
-          title: '2D',
-          name: '2d',
-          icon: '',
-          isActive: false
-        },
-        {
-          title: '3D',
-          name: '3d',
-          icon: '',
-          isActive: true
-        },
-        {
-          title: 'FV',
-          name: 'fv',
-          icon: '',
-          isActive: false
-        }
-      ]
+    return {}
+  },
+  computed: {
+    views() {
+      return this.$store.getters.views
     }
   },
   methods: {
     changeView(i) {
-      if (this.views[i]['isActive']) return
-      this.views.forEach(element => {
-        element.isActive = false
-      })
-      this.views[i]['isActive'] = true
-      ee.emit(TYPES['menu-change-view'], { data: this.views[i] })
+      this.$store.dispatch('menu/viewsChange', { i });
     }
   }
 }

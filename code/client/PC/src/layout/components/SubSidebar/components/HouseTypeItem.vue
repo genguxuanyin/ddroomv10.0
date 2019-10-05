@@ -6,15 +6,16 @@
         v-for="(cItem, ci) in item.children"
         :key="ci"
         class="item column big padding-top-6"
-        :class="{'active':cItem.isActive}"
+        :class="{'active':item.hasState && cItem.isActive}"
         :icon="cItem.icon"
         :title="cItem.title"
-        @click="$emit('click',{i:index,ci})"
+        @click="change({i:index,ci})"
       />
     </div>
   </div>
 </template>
 <script>
+import TYPES from '@/components/three/types'
 import MenuItem from '@/components/menuItem/MenuItem'
 export default {
   components: {
@@ -30,6 +31,18 @@ export default {
     index: {
       type: Number,
       default: 0
+    }
+  },
+  methods: {
+    change(payload) {
+      this.$store.dispatch('menu/subSideHouseTypeListsChange', payload)
+      /* event.dispatchEvent({
+        type: TYPES['menu-click'],
+        message: {
+          data: this.views[i],
+          type: 'view'
+        }
+      }) */
     }
   }
 }
@@ -58,8 +71,8 @@ export default {
       cursor: pointer;
       &.active {
         border: 1px solid $sub-sidebar-active-bg-color;
-        background-color: #ffffff;
-        box-shadow: $light-box-shadow;
+        background-color: #ffffff !important;
+        box-shadow: $base-box-shadow;
       }
       &:hover {
         background-color: $sub-sidebar-hover-bg-color;

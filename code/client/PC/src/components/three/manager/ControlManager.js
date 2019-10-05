@@ -32,6 +32,9 @@ const CONFIGS = [
     enableDamping: true,
     screenSpacePanning: true,
     dampingFactor: 0.16,
+    minZoom: 0.06,
+    maxZoom: 2,
+    enableKeys: false,
     disabled: false
   }, {
     name: 'ctrlModel',
@@ -172,7 +175,6 @@ class Navigator {
       };
       this.ctrlNavigator = new PointerLockControls(this.camera);
       const onKeyDown = (event) => {
-        console.log(`keydown:${event.keyCode}`)
         if (!me.ctrlNavigator.enabled) {
           return;
         }
@@ -303,6 +305,7 @@ export default class ControlManager {
     this.group = group;
     this.controls = {};
     this.configs = CONFIGS || [];
+    this.targets = {};
   }
   init() {
     this.configs.filter((v) => {
@@ -317,12 +320,11 @@ export default class ControlManager {
     switch (v.type) {
       case 'ctrlScene':
         ctrl = new OrbitControls(renderer3d.getCamera(), renderer3d.renderer.domElement);
-        ctrl.zoomSpeed = v.zoomSpeed;
-        ctrl.minDistance = v.minDistance;
-        ctrl.maxDistance = v.maxDistance;
-        ctrl.enableDamping = v.enableDamping;
-        ctrl.screenSpacePanning = v.screenSpacePanning;
-        ctrl.dampingFactor = v.dampingFactor;
+        for (var key in v) {
+          if (ctrl.hasOwnProperty(key)) {
+            ctrl[key] = v[key];
+          }
+        }
         break;
       case 'ctrlModel':
         ctrl = new TransformControls(renderer3d.getCamera(), renderer3d.renderer.domElement);
@@ -383,11 +385,19 @@ export default class ControlManager {
   setCtrlScene(objects) {
     const ctrlScene = this.getCtrlFromName('ctrlScene');
     if (ctrlScene) {
+      var newView;
+      if (objects['oldView']) {
+        this.targets[objects['oldView']] = ctrlScene.target.clone();
+        newView = objects['newView'];
+        delete objects['oldView'];
+        delete objects['newView'];
+      }
       for (const key in objects) {
         if (objects.hasOwnProperty(key)) {
           ctrlScene[key] = objects[key];
         }
       }
+      newView && ctrlScene.target.copy(this.targets[newView] || new Vector3())
     }
   }
 }

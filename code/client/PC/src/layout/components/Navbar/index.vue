@@ -35,7 +35,12 @@
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <MenuItem v-else :icon="item.icon" :title="item.title" />
+              <MenuItem
+                v-else
+                :icon="item.icon"
+                :title="item.title"
+                @click="handleCommand(item.command)"
+              />
             </template>
           </li>
         </ul>
@@ -46,9 +51,9 @@
 </template>
 
 <script>
-import MenuItem from "@/components/menuItem/MenuItem";
-import Personal from "@/components/personal/Personal";
-import Logo from "./Logo";
+import MenuItem from '@/components/menuItem/MenuItem'
+import Personal from '@/components/personal/Personal'
+import Logo from './Logo'
 
 export default {
   components: {
@@ -60,135 +65,138 @@ export default {
     return {
       checked: false,
       dropdownSetting: {
-        size: "mini",
-        placement: "top",
+        size: 'mini',
+        placement: 'top',
         hideTimeout: 250,
         showTimeout: 100
       },
       menus: [
         {
-          title: "调查问卷",
+          title: '调查问卷',
           hidden: false
         },
         {
-          title: "返回旧版"
+          title: '返回旧版'
         },
         {
-          icon: "undo"
+          icon: 'undo',
+          command: 'undo'
         },
         {
-          icon: "redo"
+          icon: 'redo',
+          command: 'redo'
         },
         {
-          title: "文件",
-          icon: "file",
+          title: '文件',
+          icon: 'file',
           dropdown: [
             {
-              title: "新建",
-              command: "a",
+              title: '新建',
+              command: 'new',
               divided: false
             },
             {
-              title: "从户型库新建",
-              command: "b",
+              title: '从户型库新建',
+              command: 'fromLibrary',
               divided: false
             },
             {
-              title: "打开本地",
-              command: "c",
+              title: '打开本地',
+              command: 'openLocal',
               divided: false
             },
             {
-              title: "上传临摹图",
-              command: "d",
+              title: '上传临摹图',
+              command: 'uploadCopy',
               divided: true,
               hidden: false
             },
             {
-              title: "上传CAD户型图",
-              command: "e",
+              title: '上传CAD户型图',
+              command: 'uploadCAD',
               divided: false
             },
             {
-              title: "我的方案",
-              command: "f",
+              title: '我的方案',
+              command: 'mySolution',
               divided: true
             },
             {
-              title: "本地备份记录",
-              command: "g",
+              title: '本地备份记录',
+              command: 'backupRecord',
               divided: false
             }
           ]
         },
         {
-          title: "保存",
-          icon: "save",
+          title: '保存',
+          icon: 'save',
           dropdown: [
             {
-              title: "保存",
-              command: "h",
+              title: '保存',
+              command: 'save',
               divided: false
             },
             {
-              title: "保存为",
-              command: "i",
+              title: '保存为',
+              command: 'saveAs',
               divided: false
             },
             {
-              title: "保存到本地",
-              command: "j",
+              title: '保存到本地',
+              command: 'saveToLocal',
               divided: false
             }
           ]
         },
         {
-          title: "显示",
-          icon: "show",
+          title: '显示',
+          icon: 'show',
           hideOnClick: false,
           dropdown: [
             {
-              title: "管理显示对象",
+              title: '管理显示对象',
+              command: 'showHideManage',
               divided: false
             },
             {
-              title: "吊顶层",
-              command: "k",
+              title: '吊顶层',
+              command: 'shCeiling',
               isCheckbox: true,
               isCheck: false,
               divided: true
             },
             {
-              title: "门窗",
-              command: "l",
+              title: '门窗',
+              command: 'shDoorWindow',
               isCheckbox: true,
               isCheck: false,
               divided: false
             },
             {
-              title: "顶角线",
-              command: "m",
+              title: '顶角线',
+              command: 'shTopLine',
               isCheckbox: true,
               isCheck: false,
               divided: false
             },
             {
-              title: "地角线",
-              command: "n",
+              title: '地角线',
+              command: 'shBottomLine',
               isCheckbox: true,
               isCheck: false,
               divided: false
             },
             {
-              title: "地台横梁柱子",
-              command: "o",
+              title: '地台横梁柱子',
+              command: 'shdhz',
               isCheckbox: true,
               isCheck: false,
               divided: false
             },
             {
-              title: "橱衣柜",
-              command: "p",
+              title: '橱衣柜',
+              command: 'shCabinet',
               isCheckbox: true,
               isCheck: false,
               divided: false
@@ -196,96 +204,150 @@ export default {
           ]
         },
         {
-          title: "工具",
-          icon: "tool",
+          title: '工具',
+          icon: 'tool',
           dropdown: [
             {
-              title: "测距量尺",
-              command: "q",
+              title: '测距量尺',
+              command: 'measure',
               divided: false
             },
             {
-              title: "全屏",
-              command: "r",
+              title: '全屏',
+              command: 'fullScreen',
               divided: false
             },
             {
-              title: "设置",
-              command: "s",
+              title: '设置',
+              command: 'setting',
               divided: false
             }
           ]
         },
         {
-          title: "图纸",
-          icon: "draw",
+          title: '图纸',
+          icon: 'draw',
           dropdown: [
             {
-              title: "导出CAD",
-              command: "t",
+              title: '导出CAD',
+              command: 'exportCAD',
               divided: false
             },
             {
-              title: "平面图",
-              command: "u",
+              title: '平面图',
+              command: 'plane',
               divided: true
             },
             {
-              title: "毛坯图",
-              command: "v",
+              title: '毛坯图',
+              command: 'blank',
               divided: false,
               hidden: true
             },
             {
-              title: "CAD施工图",
-              command: "w",
+              title: 'CAD施工图',
+              command: 'production',
               divided: false
             }
           ]
         },
         {
-          title: "清单",
-          icon: "list",
+          title: '清单',
+          icon: 'list',
           dropdown: [
             {
-              title: "定制报价",
-              command: "x",
+              title: '定制报价',
+              command: 'customMade',
               divided: false
             },
             {
-              title: "全屋报价",
-              command: "y"
+              title: '全屋报价',
+              command: 'all'
             }
           ]
         },
         {
-          title: "帮助",
-          icon: "help",
+          title: '帮助',
+          icon: 'help',
+          command: 'help',
           hidden: false
         }
       ]
-    };
+    }
   },
   computed: {
     showLogo() {
-      return this.$store.state.settings.sidebarLogo;
+      return this.$store.state.settings.sidebarLogo
     }
   },
   methods: {
     async logout() {
-      await this.$store.dispatch("user/logout");
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`);
+      await this.$store.dispatch('user/logout')
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
     handleCommand(command) {
-      // this[command]();
-      this.$message("click on item " + command);
+      if (this[command]) {
+        this[command]()
+      } else {
+        this.$store.dispatch('menu/navBarChange', { command })
+      }
+    },
+    fullScreen() {
+      function full() {
+        var el = document.documentElement
+        var rfs =
+          el.requestFullScreen ||
+          el.webkitRequestFullScreen ||
+          el.mozRequestFullScreen ||
+          el.msRequestFullscreen
+        if (typeof rfs !== 'undefined' && rfs) {
+          return rfs.call(el)
+        }
+      }
+      function exit() {
+        var rfs =
+          document.exitFullscreen ||
+          document.mozCancelFullScreen ||
+          document.webkitCancelFullScreen ||
+          document.msExitFullscreen
+        if (typeof rfs !== 'undefined' && rfs) {
+          rfs.call(document)
+        }
+      }
+      var obj = this.getObectFromCommand('fullScreen')
+      if (
+        window.outerHeigth === screen.heigth &&
+        window.outerWidth === screen.width
+      ) {
+        full()
+        obj.title = '退出全屏'
+      } else {
+        exit()
+        obj.title = '全屏'
+      }
+    },
+    getObectFromCommand(command) {
+      for (let i = 0; i < this.menus.length; i++) {
+        if (this.menus[i].command === command) {
+          return this.menus[i]
+        }
+        if (Array.isArray(this.menus[i].dropdown)) {
+          var dropdown = this.menus[i].dropdown
+          for (let j = 0; j < dropdown.length; j++) {
+            if (dropdown[j].command === command) {
+              return dropdown[j]
+            }
+          }
+        }
+      }
+      return null
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/variables.scss";
+@import '@/styles/variables.scss';
 .navbar {
   height: $header-height;
   overflow: hidden;
@@ -334,7 +396,7 @@ export default {
 }
 </style>
 <style lang="scss">
-@import "~@/styles/variables.scss";
+@import '~@/styles/variables.scss';
 .showAndHide {
   .el-checkbox__label {
     font-size: $small-text-size;
