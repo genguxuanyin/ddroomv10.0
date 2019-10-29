@@ -16,7 +16,7 @@
                 @command="handleCommand"
               >
                 <span class="el-dropdown-link">
-                  <MenuItem :icon="item.icon" :title="item.title" />
+                  <MenuItem :icon="item.icon" :title="item.title" class="padding-left-right-6" />
                 </span>
                 <el-dropdown-menu
                   slot="dropdown"
@@ -39,6 +39,7 @@
                 v-else
                 :icon="item.icon"
                 :title="item.title"
+                class="padding-left-right-6"
                 @click="handleCommand(item.command)"
               />
             </template>
@@ -369,7 +370,6 @@ export default {
           height: 100%;
           list-style: none;
           color: #fff;
-          padding: 0 6px 0 6px;
           margin: 0 6px 0 6px;
           display: flex;
           align-items: center;

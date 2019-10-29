@@ -1,8 +1,9 @@
 <template>
   <div class="dashboard-container">
-    <Three @on-click="clickFun" />
+    <Three />
     <!-- <Two /> -->
     <Welcome />
+    <Size />
   </div>
 </template>
 
@@ -10,21 +11,18 @@
 import Three from '../../components/three/Base'
 // import Two from '../../components/two/Base'
 import Welcome from '@/components/welcome/Welcome'
+import Size from '../../components/size/Size'
 import { mapGetters } from 'vuex'
 export default {
   name: 'Dashboard',
   components: {
     Three,
     // Two,
-    Welcome
+    Welcome,
+    Size
   },
   computed: {
     ...mapGetters(['name'])
-  },
-  methods: {
-    clickFun(v) {
-      console.log(v)
-    }
   }
 }
 </script>

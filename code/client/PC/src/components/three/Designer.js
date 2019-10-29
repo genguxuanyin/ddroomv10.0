@@ -7,7 +7,8 @@ import Solution3DManager from './model3d/Solution3DManager'
 // import model from './model/InitModel'
 import model from './model/model'
 import '../../utils/hotkeys'
-import Wall from './design/wall'
+import Wall from './design/Wall'
+import CeilingFloor from './design/CeilingFloor'
 
 export default new class Designer {
   constructor() {
@@ -16,6 +17,7 @@ export default new class Designer {
     this.solution3DManager = new Solution3DManager(this.solutionManager, this.scene3d);
     this.event = new Event(this);
     this.wall = new Wall(this);
+    this.ceilingFloor = new CeilingFloor(this);
     this.event.addEventListener(TYPES['menu-click'] + '-distribute', ({ command, param }) => {
       if (!Array.isArray(command)) {
         command = [command];

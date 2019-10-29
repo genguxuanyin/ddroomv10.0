@@ -1,19 +1,16 @@
 import {
   EventDispatcher,
   WebGLRenderer,
-  PCFSoftShadowMap,
   Group
 } from 'three'
 import TYPES from '../types';
-const CONFIGS = [
-  {
-    name: 'defRender',
-    id: 'three-view-container',
-    camera: 'three',
-    isDefault: true,
-    disabled: false
-  }
-];
+const CONFIGS = [{
+  name: 'defRender',
+  id: 'three-view-container',
+  camera: 'three',
+  isDefault: true,
+  disabled: false
+}];
 
 export class Renderer3D extends EventDispatcher {
   constructor(manager, config) {
@@ -21,7 +18,10 @@ export class Renderer3D extends EventDispatcher {
     this.manager = manager;
     this.scene3d = this.manager.scene3d;
     this.config = config || {};
-    this.size = { x: 0, y: 0 };
+    this.size = {
+      x: 0,
+      y: 0
+    };
   }
   init() {
     this.cameraName = this.config.camera;
@@ -46,7 +46,9 @@ export class Renderer3D extends EventDispatcher {
       this.size.height = window.innerHeight;
     }
 
-    this.renderer = new WebGLRenderer({ antialias: true });
+    this.renderer = new WebGLRenderer({
+      antialias: true
+    });
     this.renderer.setClearColor(0xf4f4f4, 1);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(this.size.width, this.size.height);
@@ -58,13 +60,25 @@ export class Renderer3D extends EventDispatcher {
 
     this.container.appendChild(this.renderer.domElement);
     this.container.addEventListener('mousedown', (e) => {
-      this.manager.dispatchEvent({ type: TYPES['mousedown'], event: e || event, renderer3d: this });
+      this.manager.dispatchEvent({
+        type: TYPES['mousedown'],
+        event: e || event,
+        renderer3d: this
+      });
     });
     this.container.addEventListener('mouseup', (e) => {
-      this.manager.dispatchEvent({ type: TYPES['mouseup'], event: e || event, renderer3d: this });
+      this.manager.dispatchEvent({
+        type: TYPES['mouseup'],
+        event: e || event,
+        renderer3d: this
+      });
     });
     this.container.addEventListener('mousemove', (e) => {
-      this.manager.dispatchEvent({ type: TYPES['mousemove'], event: e || event, renderer3d: this });
+      this.manager.dispatchEvent({
+        type: TYPES['mousemove'],
+        event: e || event,
+        renderer3d: this
+      });
     });
     window.addEventListener('resize', (e) => {
       if (this.config.id) {
@@ -101,7 +115,10 @@ export class Renderer3D extends EventDispatcher {
       this.oldCameraName = this.cameraName;
       this.cameraName = name;
       this.camera = camera;
-      this.manager.dispatchEvent({ type: TYPES['camera-changed'], renderer3d: this });
+      this.manager.dispatchEvent({
+        type: TYPES['camera-changed'],
+        renderer3d: this
+      });
     }
   }
   resetCamera(isFirst) {
@@ -113,6 +130,21 @@ export class Renderer3D extends EventDispatcher {
   }
   render() {
     this.renderer.render(this.scene3d.scene, this.camera);
+  }
+  project(v) {
+    if (!v.isVector3) {
+      return null;
+    }
+    v = v.clone();
+    var {
+      width,
+      height
+    } = this.size;
+    v = v.project(this.camera);
+    return {
+      left: parseFloat((v.x * width / 2 + width / 2).toFixed(2)),
+      top: parseFloat((-v.y * height / 2 + height / 2).toFixed(2))
+    }
   }
 }
 

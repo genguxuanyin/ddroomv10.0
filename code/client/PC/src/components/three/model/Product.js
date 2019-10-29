@@ -98,6 +98,11 @@ export default class Product {
     }
     return model;
   }
+  createProduct(model, pproduct = this) {
+    var product = new Product(this.solution, pproduct);
+    product.init(model);
+    return product;
+  }
   buildProduct(model, onprogress, pproduct = this) {
     var product = new Product(this.solution, pproduct);
     product.init(model);
@@ -180,11 +185,18 @@ export default class Product {
         result.push(this.removeProduct(products[0].k));
         break;
       default:
+        /*
         this.beginGroup();
         while (products.length > 0) {
           result.push(this.removeProduct(products[0].k));
         }
         this.endGroup();
+        */
+        var cmds = [];
+        products.forEach(p => {
+          cmds.push(['RemoveProductCommand', p.getParent(), p]);
+        });
+        this.multiCmds(cmds)
         break;
     }
     return result;
@@ -203,6 +215,9 @@ export default class Product {
   }
   endGroup() {
     this.manager.endGroup();
+  }
+  multiCmds(cmds) {
+    this.manager.multiCmds(cmds);
   }
   undo() {
     this.manager.undo();

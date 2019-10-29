@@ -115,6 +115,11 @@ export default class Solution {
     var model = strToJson(str);
     return this.buildProduct(model, onprogress);
   }
+  createProduct(model) {
+    var product = new Product(this);
+    product.init(model);
+    return product;
+  }
   buildProduct(model, onprogress) {
     var product = new Product(this);
     product.init(model);
@@ -172,7 +177,7 @@ export default class Solution {
         delete this._products[k];
         this._productCount--;
         if (product === this.activeProduct) {
-          if (this.oldActiveProduct) {
+          if (this.oldActiveProduct && this._productArray.includes(this.oldActiveProduct)) {
             this.oldActiveProduct.setActive(true);
           } else if (this._productArray.length > 0) {
             this._productArray[0].setActive(true);
@@ -204,11 +209,17 @@ export default class Solution {
     solution.init(model);
     return solution;
   }
+  getProductArrayFromName(name) {
+    return this.getProductArray().filter(p => p.getAtt('n') === name);
+  }
   beginGroup() {
     this.manager.beginGroup();
   }
   endGroup() {
     this.manager.endGroup();
+  }
+  multiCmds(cmds) {
+    this.manager.multiCmds(cmds);
   }
   undo() {
     this.manager.undo();

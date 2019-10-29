@@ -1,4 +1,5 @@
 import './extend/Group'
+import './extend/Vector3'
 import {
   EventDispatcher,
   Scene,
@@ -59,9 +60,9 @@ export default class Scene3D extends EventDispatcher {
     this.scene.add(this.helpGroup);
 
     var axesHelper = new AxesHelper(1000);
-    var planeHelper = new PlaneHelper(this.plane, 2000, 0xffff00);
+    // var planeHelper = new PlaneHelper(this.plane, 2000, 0xffff00);
     this.helpGroup.add(axesHelper);
-    this.helpGroup.add(planeHelper);
+    // this.helpGroup.add(planeHelper);
 
     this.cameraManager = new CameraManager(this);
     this.cameraManager.init();
@@ -106,7 +107,10 @@ export default class Scene3D extends EventDispatcher {
       container && container.appendChild(this.stats.dom);
     }
 
-    this.dispatchEvent({ type: TYPES['scene3d-init'], scene3d: this });
+    this.dispatchEvent({
+      type: TYPES['scene3d-init'],
+      scene3d: this
+    });
     this.start();
   }
   refresh() {
@@ -171,7 +175,9 @@ export default class Scene3D extends EventDispatcher {
       renderer3d.setCamera('fv');
     }
     this.controlManager.startNavigator();
-    this.controlManager.setCtrlScene({ enabled: false });
+    this.controlManager.setCtrlScene({
+      enabled: false
+    });
   }
   setView(value) {
     this.view = value;
@@ -213,6 +219,13 @@ export default class Scene3D extends EventDispatcher {
   setMoveFindObj(value) {
     this.canFindObj = !!value;
   }
+  project(v) {
+    var renderer3d = this.rendererManager.getDefRenderer3D();
+    if (renderer3d) {
+      return renderer3d.project(v);
+    }
+    return null;
+  }
   _findObject(ev) {
     var oEvent = ev.event;
     oEvent.preventDefault();
@@ -226,16 +239,33 @@ export default class Scene3D extends EventDispatcher {
         var intersect = new Vector3();
         raycaster.ray.intersectPlane(this.plane, intersect);
         if (intersect) {
-          this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: { point: intersect.round() }, renderer3d: ev.renderer3d });
+          this.dispatchEvent({
+            type: TYPES['find-object'],
+            event: oEvent,
+            intersect: {
+              point: intersect.round()
+            },
+            renderer3d: ev.renderer3d
+          });
         }
       } else {
         var intersects = raycaster.intersectObjects([this.rootGroup], true);
         if (intersects.length > 0) {
-          this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, intersect: intersects[0], intersects: intersects, renderer3d: ev.renderer3d });
+          this.dispatchEvent({
+            type: TYPES['find-object'],
+            event: oEvent,
+            intersect: intersects[0],
+            intersects: intersects,
+            renderer3d: ev.renderer3d
+          });
         }
       }
     } else {
-      this.dispatchEvent({ type: TYPES['find-object'], event: oEvent, renderer3d: ev.renderer3d });
+      this.dispatchEvent({
+        type: TYPES['find-object'],
+        event: oEvent,
+        renderer3d: ev.renderer3d
+      });
     }
   }
 }

@@ -33,6 +33,9 @@ export default {
   &.column {
     flex-direction: column;
   }
+  &.padding-left-right-6 {
+    padding: 0 6px 0 6px;
+  }
   &.big {
     .svg-icon {
       width: 2em;

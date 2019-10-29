@@ -8,13 +8,14 @@
           href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation"
           style="color:#000"
         >WebGL</a>.
-        <br />'
+        <br>'
       </slot>
     </div>
   </div>
 </template>
 
 <script>
+import TYPES from './types'
 import designer from './Designer'
 const suportWebGL = (() => {
   try {
@@ -31,12 +32,25 @@ const suportWebGL = (() => {
 export default {
   data() {
     return {
-      designer: designer,
+      designer,
       suportWebGL
     }
   },
   mounted() {
     this.designer.init()
+    this.designer.event.addEventListener(TYPES['menu-change'], ev => {
+      var { command, param } = ev
+      if (!Array.isArray(command)) {
+        command = [command]
+      }
+      if (!Array.isArray(param)) {
+        param = [param]
+      }
+      command.forEach((c, i) => {
+        this[c] && this[c](param[i] ? param[i] : param[0])
+        this.$store.dispatch(c, param[i] ? param[i] : param[0])
+      })
+    })
   },
   beforeDestroy() {
     this.designer.scene3d.stop()

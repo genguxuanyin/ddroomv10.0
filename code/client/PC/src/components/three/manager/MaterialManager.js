@@ -5,7 +5,8 @@ import {
   LineBasicMaterial
 } from 'three'
 import {
-  isEqual
+  isEqual,
+  cloneDeep
 } from 'lodash'
 import TextureManager from './TextureManager'
 
@@ -39,7 +40,8 @@ export default class MaterialManager {
   constructor(scene3d) {
     this.scene3d = scene3d;
     this.materialObjs = new Map();
-    this.configs = CONFIGS || [];
+    this.baseConfigs = CONFIGS || [];
+    this.configs = cloneDeep(CONFIGS) || [];
   }
   init() {
     this.configs.filter((v) => {
@@ -160,8 +162,8 @@ export default class MaterialManager {
     } else if (typeof config === 'object') {
       config = [config];
     }
-    config = config.map((c) => {
-      var cur = this.configs.find((v) => {
+    config = config.map(c => {
+      var cur = this.baseConfigs.find((v) => {
         return v.name === c.name;
       });
       if (typeof cur === 'undefined') {

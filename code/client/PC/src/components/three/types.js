@@ -32,6 +32,7 @@ export default {
   'menu-click': 'menu-click',
   'find-object': 'find-object',
   'common': 'common',
+  'menu-change': 'menu-change',
 
   // History
   'change-history-state': 'change-history-state',
@@ -46,5 +47,7 @@ export default {
 
   //
   'material-remove': 'material-remove',
-  'texture-remove': 'texture-remove'
+  'texture-remove': 'texture-remove',
+
+  'ceiling-floor-update': 'ceiling-floor-update'
 }

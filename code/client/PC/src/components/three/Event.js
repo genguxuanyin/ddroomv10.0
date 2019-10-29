@@ -6,50 +6,90 @@ import {
   intersection
 } from 'lodash'
 const CONFIG = new Map([
-  [[{
-    name: 'opState',
-    value: ['drawSequence']
-  }, {
-    name: 'viewState',
-    value: ['two']
-  }, {
-    name: 'findObject',
-    value: {
-      type: ['plane'],
-      eventType: ['mousedown0', 'mousemove0']
+  [
+    [{
+      name: 'opState',
+      value: ['drawSequence']
+    }, {
+      name: 'viewState',
+      value: ['two']
+    }, {
+      name: 'findObject',
+      value: {
+        type: ['plane'],
+        eventType: ['mousedown0', 'mousemove0']
+      }
+    }], {
+      command: 'drawSequence',
+      param: {}
     }
-  }], { command: 'drawSequence', param: {}}],
-  [[{
-    name: 'opState',
-    value: ['drawBox']
-  }, {
-    name: 'viewState',
-    value: ['two']
-  }, {
-    name: 'findObject',
-    value: {
-      type: ['plane'],
-      eventType: ['mousedown0', 'mousemove0']
+  ],
+  [
+    [{
+      name: 'opState',
+      value: ['drawBox']
+    }, {
+      name: 'viewState',
+      value: ['two']
+    }, {
+      name: 'findObject',
+      value: {
+        type: ['plane'],
+        eventType: ['mousedown0', 'mousemove0']
+      }
+    }], {
+      command: 'drawBox',
+      param: {}
     }
-  }], { command: 'drawBox', param: {}}],
-  [[{
-    name: 'opState',
-    value: ['drawSequence', 'drawBox']
-  }, {
-    name: 'viewState',
-    value: ['two']
-  }, {
-    name: 'findObject',
-    value: {
-      type: ['plane'],
-      eventType: ['mousedown2']
+  ],
+  [
+    [{
+      name: 'opState',
+      value: ['drawPillar', 'drawPlat', 'drawGirde']
+    }, {
+      name: 'viewState',
+      value: ['two']
+    }, {
+      name: 'findObject',
+      value: {
+        type: ['plane'],
+        eventType: ['mousedown0', 'mousemove0']
+      }
+    }], {
+      command: 'drawOther',
+      param: {}
     }
-  }], { command: 'resetWall', param: {}}]
+  ],
+  [
+    [{
+      name: 'opState',
+      value: ['drawSequence', 'drawBox', 'drawPillar']
+    }, {
+      name: 'viewState',
+      value: ['two']
+    }, {
+      name: 'findObject',
+      value: {
+        type: ['plane'],
+        eventType: ['mousedown2']
+      }
+    }], {
+      command: 'resetWall',
+      param: {}
+    }
+  ]
 ]);
 export default class EventManager extends EventDispatcher {
   constructor(designer) {
     super();
-    this.states = { opState: { drawSequence: true }, viewState: { three: true }};
+    this.states = {
+      opState: {
+        drawSequence: true
+      },
+      viewState: {
+        three: true
+      }
+    };
     this.designer = designer;
     this.scene3d = designer.scene3d;
     this.solutionManager = designer.solutionManager;
@@ -57,7 +97,10 @@ export default class EventManager extends EventDispatcher {
   }
   init() {
     this.addEventListener(TYPES['menu-click'], (ev) => {
-      var { command, param } = ev;
+      var {
+        command,
+        param
+      } = ev;
       if (!Array.isArray(command)) {
         command = [command];
       }
@@ -67,7 +110,9 @@ export default class EventManager extends EventDispatcher {
       command.forEach((c, i) => {
         this[c] && this[c](param[i] ? param[i] : param[0])
       })
-      this.dispatchEvent(Object.assign(ev, { type: TYPES['menu-click'] + '-distribute' }));
+      this.dispatchEvent(Object.assign(ev, {
+        type: TYPES['menu-click'] + '-distribute'
+      }));
     });
     this.scene3d.addEventListener(TYPES['find-object'], (ev) => {
       this.goes(ev);
@@ -115,7 +160,11 @@ export default class EventManager extends EventDispatcher {
             throw new Error('break'); // 终止forEach循环
           }
         })
-        this.dispatchEvent({ type: TYPES['common'], command: value.command, param: Object.assign(value.param, ev) });
+        this.dispatchEvent({
+          type: TYPES['common'],
+          command: value.command,
+          param: Object.assign(value.param, ev)
+        });
       } catch (error) {
         if (error.message !== "break") {
           console.error(error);
@@ -133,8 +182,10 @@ export default class EventManager extends EventDispatcher {
         return this._intersection(v.value, viewState);
       case 'findObject':
         return (
-          this._intersection(v.value.eventType, [ev.event.type + ev.event.button])/*  &&
-          this._intersection(v.value.type, [ev.event.type]) */);
+          this._intersection(v.value.eventType, [ev.event.type + ev.event.button])
+          /*  &&
+                    this._intersection(v.value.type, [ev.event.type]) */
+        );
     }
   }
   _intersection(...arg) {

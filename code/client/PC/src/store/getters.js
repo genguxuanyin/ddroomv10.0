@@ -7,6 +7,7 @@ const getters = {
   name: state => state.user.name,
   subSideHouseType: state => state.menu.subSideHouseType,
   views: state => state.menu.views,
-  rightBar: state => state.menu.rightBar
+  rightBar: state => state.menu.rightBar,
+  size: state => state.menu.size
 }
 export default getters

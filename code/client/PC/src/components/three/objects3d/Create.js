@@ -7,7 +7,6 @@ import {
   Vector2,
   ShapeGeometry,
   Geometry,
-  PlaneGeometry,
   LineSegments,
   Line,
   Group,
@@ -16,9 +15,13 @@ import {
 import {
   chunk,
   groupBy,
-  round
+  round,
+  cloneDeep
 } from 'lodash'
-import { fromArraytoVector3 } from '../util'
+import {
+  fromArraytoVector3,
+  fromStrToArray
+} from '../util'
 import designer from '../Designer'
 
 class Base {
@@ -47,7 +50,9 @@ class Base {
   calcGroup() {
     var geometry = this.geometry;
     if (!geometry.isBufferGeometry) return;
-    var { array: arrayNormal } = geometry.getAttribute('normal');
+    var {
+      array: arrayNormal
+    } = geometry.getAttribute('normal');
     var cn = chunk(arrayNormal, 3);
     var gn = groupBy(cn, (v) => {
       return v.reduce((t, v, i, a) => {
@@ -63,12 +68,17 @@ class Base {
       i++;
     }
   }
-  calcUvs(range = { w: 1024, h: 1024 }, dir = 'h') {
+  calcUvs(range = {
+    w: 1024,
+    h: 1024
+  }, dir = 'h') {
     var geometry = this.geometry;
     if (!geometry.isGeometry) return;
     geometry.computeBoundingBox();
     geometry.faceVertexUvs[0] = [];
-    var { min } = geometry.boundingBox;
+    var {
+      min
+    } = geometry.boundingBox;
 
     geometry.faces.forEach((face) => {
       var components = ['x', 'y', 'z'].sort((a, b) => {
@@ -96,14 +106,21 @@ class Base {
   }
   calcUvs1(geometry) {
     geometry.computeBoundingBox();
-    var { min } = geometry.boundingBox;
-    var { array: arrayPosition } = geometry.getAttribute('position');
+    var {
+      min
+    } = geometry.boundingBox;
+    var {
+      array: arrayPosition
+    } = geometry.getAttribute('position');
     var uvArray = [];
     var cp = chunk(arrayPosition, 3);
     fromArraytoVector3(cp).forEach((v, i, a) => {
       var _r = this.getRadius(min, v);
       var angleXY = this.getAngleXY(Math.round(_r), v);
-      var uvP = this.getUVPosition({ x: angleXY.x || 0, y: angleXY.y || 0 });
+      var uvP = this.getUVPosition({
+        x: angleXY.x || 0,
+        y: angleXY.y || 0
+      });
       uvArray.push(uvP.u, uvP.v);
 
       // 每圈的最后一个点 解决 0 1拼接点的压缩线问题.
@@ -118,18 +135,33 @@ class Base {
     // 更新
     uv.needsUpdate = true;
   }
-  getRadius({ x, y, z }, { x: x1, y: y1, z: z1 }) {
+  getRadius({
+    x,
+    y,
+    z
+  }, {
+    x: x1,
+    y: y1,
+    z: z1
+  }) {
     return Math.pow(
       Math.pow(x - x1, 2) + Math.pow(y - y1, 2) + Math.pow(z - z1, 2), 1 / 2
     );
   }
-  getAngleXY(r, { x, y, z }) {
+  getAngleXY(r, {
+    x,
+    y,
+    z
+  }) {
     return {
       x: Math.atan2(z, x) + Math.PI,
       y: Math.asin(y / r)
     };
   }
-  getUVPosition({ x, y }) {
+  getUVPosition({
+    x,
+    y
+  }) {
     return {
       u: (x / (2 * Math.PI)) % 1,
       v: 1 / 2 + y / Math.PI
@@ -175,8 +207,8 @@ export class CreateExtrude extends Base {
     // texture.wrapT = RepeatWrapping;
     this.geometry = new ExtrudeGeometry(this.shape, this.extrudeSettings);
     this.material = designer.scene3d.materialManager.getMaterial('def')[0];
-    this.filterFace();// 过滤法线为 0 0 0 的face
-    this.calcUvs();// 计算Uvs
+    this.filterFace(); // 过滤法线为 0 0 0 的face
+    this.calcUvs(); // 计算Uvs
     this.mesh = new Mesh(this.geometry, this.material);
   }
   create() {
@@ -196,18 +228,41 @@ export class CreateShape extends Base {
     var path;
     this.model = model;
     path = fromArraytoVector3(model.pa);
-    this.path = path.map((v) => {
-      return new Vector2(v.x, v.z);
-    });
+    this.path = path.map(v => new Vector2(v.x, v.z));
     this.shape = new Shape(this.path);
     this.geometry = new ShapeGeometry(this.shape);
-    this.material = designer.scene3d.materialManager.getMaterial({ name: 'def', side: 1, map: 'http://f3d.ddroom.cn/upload/images/7723af81-49f7-4a75-b4dd-a3afe4e06fb3/2017-11-01112913/manguchuntian.jpg' })[0];
+    this.material = designer.scene3d.materialManager.getMaterial(model.m)[0];
     this.filterFace();
     this.calcUvs();
     this.mesh = new Mesh(this.geometry, this.material);
+    model.p && this.mesh.position.set(...fromStrToArray(model.p)); // position 旋转
   }
   create() {
     return this.mesh;
+  }
+}
+
+export class CreateShapes extends Base {
+  constructor(model) {
+    super();
+    var hs, mats, cmodel, shape;
+    this.shapes = [];
+    this.meshs = [];
+    this.model = model;
+    hs = fromStrToArray(model.h);
+    mats = model.m;
+    hs.map((h, i) => {
+      cmodel = cloneDeep(this.model)
+      delete cmodel.h;
+      cmodel.p = `0,0,${h}`;
+      cmodel.m = Array.isArray(mats) ? (mats[i] ? mats[i] : (mats.length > 0 ? mats[0] : 'def')) : mats;
+      shape = new CreateShape(cmodel);
+      this.shapes.push(shape)
+      this.meshs.push(shape.create())
+    })
+  }
+  create() {
+    return this.meshs;
   }
 }
 
@@ -282,11 +337,12 @@ export class CreateCircle {
 }
 
 export class CreateDraw extends Group {
-  constructor(model) {
+  constructor(model, hasCircle = true) {
     super();
     var ep, p_dir, ep_dir, cross, path;
     this.model = model;
     this.lines = [];
+    this.hasCircle = hasCircle;
     path = fromArraytoVector3(this.model.pa);
     ep = this.model.ep; // 挤压路径
     if (!ep && this.model.h) {
@@ -323,10 +379,12 @@ export class CreateDraw extends Group {
       this.lines.push(new CreateLine(p))
       this.add(this.lines[this.lines.length - 1].create())
     });
-    this.circle = new CreateCircle(this.model.w / 2, this.path[4]);
-    this.add(this.circle.create());
+    if (this.hasCircle) {
+      this.circle = new CreateCircle(this.model.w / 2, this.path[4]);
+      this.add(this.circle.create());
+    }
   }
-  update(model, adsorbAxes) {
+  update(model, adsorbAxes, endpoint) {
     if (this.visible === false) this.visible = true;
     var ep, ep_dir, p_dir, cross, path;
     this.model = model;
@@ -363,6 +421,7 @@ export class CreateDraw extends Group {
       line.update(paths[i]);
     }
     var flag, dir, cross_dir;
+    endpoint = endpoint ? endpoint : this.path[4];
     for (let i = 2; i < 5; i++) {
       flag = adsorbAxes[i - 2];
       dir = new Vector3();
@@ -370,9 +429,11 @@ export class CreateDraw extends Group {
       cross_dir = new Vector3().crossVectors(dir, ep_dir);
       cross_dir.multiplyScalar(20000);
       this.lines[i].setVisible(flag);
-      this.lines[i].update([this.path[4].clone().sub(cross_dir), this.path[4].clone().add(cross_dir)]);
+      this.lines[i].update([endpoint.clone().sub(cross_dir), endpoint.clone().add(cross_dir)]);
     }
-    this.circle.update(this.path[4])
+    if (this.hasCircle && this.circle) {
+      this.circle.update(this.path[4])
+    }
   }
 }
 

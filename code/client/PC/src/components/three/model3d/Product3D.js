@@ -56,7 +56,7 @@ export default class Product3D extends EventDispatcher {
     this.group.userData.cl = 'P';
     this.group.userData.t = model.t;
     this.group.userData.k = this.product.getKey();
-    model.p && this.group.position.set(...fromStrToArray(model.p)); // position 旋转
+    model.p && this.group.position.set(...fromStrToArray(model.p)); // position 位置
     model.r && this.group.rotation.set(...fromStrToArray(model.r, Math.PI)); // rotation 旋转
     this.getParentGroup().add(this.group);
 
@@ -290,7 +290,7 @@ export default class Product3D extends EventDispatcher {
     var meshArray = null;
     switch (this.state) {
       case 1:
-        meshArray = this.productGroup.children.filter(v => {
+        meshArray = this.group.children.filter(v => {
           return v.isMesh;
         });
         if (func) {
@@ -306,12 +306,12 @@ export default class Product3D extends EventDispatcher {
       default:
         this._promise.then((product3d) => {
           if (func) {
-            meshArray = product3d.productGroup.children.filter(v => {
+            meshArray = product3d.group.children.filter(v => {
               return v.isMesh;
             });
             func(meshArray)
           }
-        }, (product3d) => {
+        }, () => {
           if (func) {
             func(meshArray)
           }
